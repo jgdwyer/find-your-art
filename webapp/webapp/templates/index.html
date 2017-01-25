@@ -1,0 +1,77 @@
+<html>
+ <head>
+    <title>art test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ </head>
+ <body>
+    <h1>Hello, Miguel!</h1>
+
+    <!-- <img src="{{ url_for('static', filename='Emperor_Penguin_Manchot_empereur.jpg') }}"></img> -->
+    <form action="/a" method="POST">
+
+          <div class="row">
+           <div class="col-xs-6 col-md-3">
+             <img class="img-responsive" src="{{img.0}}" />
+             <input type="radio" name="q0" id="yes" value=1> yes </input><br>
+             <input type="radio" name="q0" id="maybe" checked="checked" value=0> maybe </input><br>
+             <input type="radio" name="q0" id="no" value=-1> no </input><br>
+           </div>
+           <div class="col-xs-6 col-md-3">
+             <img class="img-responsive" src="{{img.1}}" />
+             <input type="radio" name="q1" id="yes" value=1> yes </input><br>
+             <input type="radio" name="q1" id="maybe" checked="checked" value=0> maybe </input><br>
+             <input type="radio" name="q1" id="no" value=-1> no </input><br>
+           </div>
+
+           <div class="col-xs-6 col-md-3">
+             <img class="img-responsive" src="{{img.2}}" />
+             <input type="radio" name="q2" id="yes" value=1> yes </input><br>
+             <input type="radio" name="q2" id="maybe" checked="checked" value=0> maybe </input><br>
+             <input type="radio" name="q2" id="no" value=-1> no </input><br>
+           </div>
+           <div class="col-xs-6 col-md-3">
+             <img class="img-responsive" src="{{img.3}}" />
+             <input type="radio" name="q3" id="yes" value=1> yes </input><br>
+             <input type="radio" name="q3" id="maybe" checked="checked" value=0> maybe </input><br>
+             <input type="radio" name="q3" id="no" value=-1> no </input><br>
+           </div>
+           <div class="col-xs-6 col-md-3">
+             <img class="img-responsive" src="{{img.4}}" />
+             <input type="radio" name="q4" id="yes" value=1> yes </input><br>
+             <input type="radio" name="q4" id="maybe" checked="checked" value=0> maybe </input><br>
+             <input type="radio" name="q4" id="no" value=-1> no </input><br>
+           </div>
+           <div class="col-xs-6 col-md-3">
+             <img class="img-responsive" src="{{img.5}}" />
+             <input type="radio" name="q5" id="yes" value=1> yes </input><br>
+             <input type="radio" name="q5" id="maybe" checked="checked" value=0> maybe </input><br>
+             <input type="radio" name="q5" id="no" value=-1> no </input><br>
+           </div>
+          </div>
+
+          <p><input type="submit" value="Next" class="btn btn-default"></p>
+          </form>
+
+          <!-- <img src={{img1}} alt="Penguin" width=300/><br>
+          <input type="radio" name="q1" id="yes" value=1> yes </input><br>
+          <input type="radio" name="q1" id="maybe" value=0> maybe </input><br>
+          <input type="radio" name="q1" id="no" value=-1> no </input><br>
+        </p>
+        <p>
+          <img src={{img1}} alt="Penguin" width=300/><br>
+          <input type="radio" name="q1" id="yes" value=1> yes </input><br>
+          <input type="radio" name="q1" id="maybe" value=0> maybe </input><br>
+          <input type="radio" name="q1" id="no" value=-1> no </input><br>
+        </p> -->
+
+
+        <!-- <button name="button" type="button" data-value=1 class="btn btn-success">Yes</button>
+        <button name="button" type="button" data-value=0 class="btn btn-warning">Maybe</button>
+        <button name="button" type="button" data-value=-1 class="btn btn-danger">No</button> -->
+
+ </body>
+</html>
