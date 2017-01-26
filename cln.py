@@ -1,10 +1,12 @@
 from bs4 import BeautifulSoup
 import re
+import numpy as np
 
 def convert_year(years, debug=False):
     for i, yr in years.iteritems():
         do_yr = 0
         if yr is None:
+            years.set_value(i, np.nan)
             continue
         if debug:
             print(yr)
@@ -14,7 +16,7 @@ def convert_year(years, debug=False):
         if is_int(yr):
             years.set_value(i, int(yr))
         else:
-            years.set_value(i, None)
+            years.set_value(i, np.nan)
     return years
 
 
