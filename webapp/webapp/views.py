@@ -1,9 +1,9 @@
 from flask import render_template
 from flask import request, session
 from webapp import app
-# from sqlalchemy import create_engine
-# from sqlalchemy_utils import database_exists, create_database
-# import psycopg2
+from sqlalchemy import create_engine
+from sqlalchemy_utils import database_exists, create_database
+import psycopg2
 from model import final_imgs
 import pandas as pd
 import numpy as np
@@ -19,7 +19,15 @@ baberuth = 'https://upload.wikimedia.org/wikipedia/commons/0/09/Babe_Ruth_circa_
 N = 6
 # Load the pandas dataframe
 df = pd.read_pickle(os.path.join(APP_STATIC,'art_a_clean.pickle'))
-
+# Establish a connection with the PSQL database
+user = 'jgdwyer'
+pswd = '1234'
+host = 'localhost'
+dbname = 'art_1'
+db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.format(user, pswd,
+                                                          host, dbname))
+con = None
+con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
 
 @app.route('/')
 @app.route('/index')
@@ -30,9 +38,18 @@ def index():
     rand_inds = list(rand_inds[:N])  # convert to list and limit to N entries
     # Store each random image index as a value in the sessions dictionary
     # Note that indices are stored as strings
+    img = []
+    sql_query_pre = "SELECT url_to_thumb FROM artworks WHERE index="
     for i, rand_ind in enumerate(rand_inds):
         session['rnd_ind' + str(i)] = str(rand_ind)
     # Get urls of thumbnail images
+        sql_query = sql_query_pre + str(rand_ind) + ";"
+        thumb_url_np = pd.read_sql_query(sql_query, con)
+        # print(birth_data_from_sql.values[0][0])
+        # Convert from pandas -> numpy -> string value
+        img.append(thumb_url_np.values[0][0])
+
+
     img = [df['url_to_thumb'][i] for i in rand_inds]
     # Send to template page
     return render_template('index.html', img=img)
@@ -54,20 +71,38 @@ def pagea():
             bad_inds.append(rand_inds[i])
     # Use information from these response and the original input images to
     # decide which are most similar
-    # Placeholder
-    best_inds = final_imgs(good_inds, bad_inds, q, df)
+    # Run Model - Placeholder
+    best_inds = final_imgs(good_inds, bad_inds, q, df, db, con)
     # Get thumbnail address for best images
-    img = [df['url_to_thumb'][i] for i in best_inds]
-    # Get links to google art page
-    glink = ['http://' + df['source_html'][i] for i in best_inds]
-    # Make links to art.com search
-    alink = [df['filename_spaces'][i] for i in best_inds]
-    alink = [val.replace(' - Google Art Project.jpg',"") for val in alink]
-    alink = [val.replace(" -","").replace(" ","%20") for val in alink]
-    aprefix = 'http://www.art.com/asp/search_do.asp/_/posters.htm?searchstring='
-    alink = [aprefix + val for val in alink]
-    # Get link to high-res version
-    hrlink = [df['url_to_im'][i] for i in best_inds]
-    print(hrlink)
+    sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
+        "FROM artworks WHERE index="
+    img, glink, alink, hreslink = [], [], [], []
+    for best_ind in best_inds:
+        sql_query = sql_query_pre + str(best_ind) + ";"
+        results = pd.read_sql_query(sql_query, con)
+        img.append(results['url_to_thumb'].values[0])
+        glink.append('http://' + results['source_html'].values[0])
+        hreslink.append(results['url_to_im'].values[0])
+        alink.append(link_to_art_dot_com(results['filename_spaces'].values[0]))
+
+    # img = [df['url_to_thumb'][i] for i in best_inds]
+    # # Get links to google art page
+    # glink = ['http://' + df['source_html'][i] for i in best_inds]
+    # # Make links to art.com search
+    # alink = [df['filename_spaces'][i] for i in best_inds]
+    # alink = [val.replace(' - Google Art Project.jpg',"") for val in alink]
+    # alink = [val.replace(" -","").replace(" ","%20") for val in alink]
+    # aprefix = 'http://www.art.com/asp/search_do.asp/_/posters.htm?searchstring='
+    # alink = [aprefix + val for val in alink]
+    # # Get link to high-res version
+    # hrlink = [df['url_to_im'][i] for i in best_inds]
+    # print(hrlink)
     return render_template("a.html", img=img, glink=glink, alink=alink,
-                           hrlink=hrlink)
+                           hreslink=hreslink)
+
+def link_to_art_dot_com(alink):
+    alink = alink.replace(' - Google Art Project.jpg',"")
+    alink = alink.replace(" -","").replace(" ","%20")
+    apre = 'http://www.art.com/asp/search_do.asp/_/posters.htm?searchstring='
+    alink = apre + alink
+    return alink
