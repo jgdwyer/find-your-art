@@ -54,7 +54,20 @@ def pagea():
             bad_inds.append(rand_inds[i])
     # Use information from these response and the original input images to
     # decide which are most similar
-    best_inds = final_imgs(good_inds, bad_inds, q, df)
     # Placeholder
+    best_inds = final_imgs(good_inds, bad_inds, q, df)
+    # Get thumbnail address for best images
     img = [df['url_to_thumb'][i] for i in best_inds]
-    return render_template("a.html", img=img)
+    # Get links to google art page
+    glink = ['http://' + df['source_html'][i] for i in best_inds]
+    # Make links to art.com search
+    alink = [df['filename_spaces'][i] for i in best_inds]
+    alink = [val.replace(' - Google Art Project.jpg',"") for val in alink]
+    alink = [val.replace(" -","").replace(" ","%20") for val in alink]
+    aprefix = 'http://www.art.com/asp/search_do.asp/_/posters.htm?searchstring='
+    alink = [aprefix + val for val in alink]
+    # Get link to high-res version
+    hrlink = [df['url_to_im'][i] for i in best_inds]
+    print(hrlink)
+    return render_template("a.html", img=img, glink=glink, alink=alink,
+                           hrlink=hrlink)

@@ -1,21 +1,47 @@
 <html>
  <head>
-    <title>Page 1</title>
+   <title>find your art -- results</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
  </head>
  <body>
-    <h1>Hello, fellow!</h1>
-    <div class="row">
-     <div class="col-xs-6 col-md-3">
-       <img class="img-responsive" src="{{img.0}}" />
+    <h1>Your recommendations:</h1>
+    <div class="container">
+      <div class="row">
+       <div class="col-xs-6 col-md-6">
+        <img class="img-responsive center-block" src="{{img.0}}" />
+        <br><a href="{{glink.0}}">learn more</a>
+        <br><a href="{{alink.0}}">buy a print</a>
+        <br><a href="{{hrlink.0}}">high-res</a>
+       </div>
 
-       <img class="img-responsive" src="{{img.1}}" />
-
-
-
-       <img class="img-responsive" src="{{img.2}}" />
-
-       <img class="img-responsive" src="{{img.3}}" />
+       <div class="col-xs-6 col-md-6">
+        <img class="img-responsive center-block" src="{{img.1}}" />
+        <br><a href="{{glink.1}}">learn more</a>
+        <br><a href="{{alink.1}}">buy a print</a>
+        <br><a href="{{hrlink.1}}">high-res</a>
+       </div>
      </div>
-   </div>
+
+     <div class="row">
+       <div class="col-xs-6 col-md-6">
+        <img class="img-responsive center-block" src="{{img.2}}" />
+        <br><a href="{{glink.2}}">learn more</a>
+        <br><a href="{{alink.2}}">buy a print</a>
+        <br><a href="{{hrlink.2}}">high-res</a>
+       </div>
+       <div class="col-xs-6 col-md-6">
+        <img class="img-responsive center-block" src="{{img.3}}" />
+        <br><a href="{{glink.3}}">learn more</a>
+        <br><a href="{{alink.3}}">buy a print</a>
+        <br><a href="{{hrlink.3}}">high-res</a>
+      </div>
+     </div>
+    </div>
+    <br><br>
+    <a href="">I'm unhappy with these results</a>
  </body>
 </html>
