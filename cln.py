@@ -81,7 +81,7 @@ def q_all(yr):
 def q_html(yr):
     """Use beautiful soup on html tags. Many tags have this form"""
     if yr[:5] == '<span':
-        soup = BeautifulSoup(yr, 'lxml')
+        soup = BeautifulSoup(yr, 'html.parser')
         if soup.time is not None:
             yr = soup.time.text
     return yr
