@@ -2,6 +2,7 @@ from collections import Counter
 import operator
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 def run_cats(df):
     all_cats = output_all_cats(df)
@@ -10,6 +11,41 @@ def run_cats(df):
     out_cats, _ = min_cats(cnt_cats, N=2)
     return out_cats
 
+def remove_some_cats_from_df(df, make_hist=False, debug=False):
+    """Adds a new column to the dataframe (categories_cleaned) that does not
+       include extranenous categories"""
+    # Add a new column initialized with nans to the data frame
+    df['categories_cleaned'] = None #pd.Series(None, index=df.index)
+    # This returns a list of good cats
+    new_cat_list = run_cats(df)
+    # Iterate over each row of dataframe
+    rowlen=[]
+    for i, row in df.iterrows():
+        # Show progress
+        if i%1000==1:
+            print(i)
+        # Get a list of the original categories for this entry
+        if row['categories'] is None:
+            continue
+        orig_cats = row['categories'].split("||")
+        less_cats = []
+        # Check to see if they are in "out_cats"
+        for orig_cat in orig_cats:
+            if orig_cat in new_cat_list:
+                less_cats.append(orig_cat)
+        # Save as new row entry and join strings in list again on delimter
+        df.set_value(i, 'categories_cleaned', '||'.join(less_cats))
+        # Count number of categories for each entry
+        rowlen.append(len(less_cats))
+        if debug and i<300:
+            print(orig_cats)
+            print(less_cats)
+            print('--------------------------')
+
+        if make_hist:
+            plt.hist(rowlen, bins=np.arange(0,15,1),log=True)
+            plt.show()
+    return df
 
 
 def output_all_cats(df):
@@ -49,9 +85,9 @@ def cat_histogram(sorted_counts):
     plt.show()
     return None
 
-def min_cats(sorted_counts, N=2):
+def min_cats(sorted_counts, N=1):
     """Given list of tuples of cats, return a list of cats that appear more
-       frequently than N times (2 by default). Also return a list of tuples"""
+       frequently than N times (1 by default). Also return a list of tuples"""
     out_list = []
     out_tup_list = []
     for i in sorted_counts:
@@ -101,6 +137,10 @@ def bad_cats(all_cats):
            'Paintings with years of production (artist)',
            'Pages using duplicate arguments in template calls',
            'Whistler collection at the Freer Gallery of Art',
+           'Files not protected by international copyright agreements',
+           '(page does not exist)',
+           'Museum',
+           'Gallery',
            ' in the ',
            'Collections of ']
     # Initialize the good cats
