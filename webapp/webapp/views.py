@@ -23,7 +23,7 @@ df = pd.read_pickle(os.path.join(APP_STATIC,'art_a_clean.pickle'))
 user = 'jgdwyer'
 pswd = '1234'
 host = 'localhost'
-dbname = 'art_1'
+dbname = 'art_2'
 db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.format(user, pswd,
                                                           host, dbname))
 con = None
