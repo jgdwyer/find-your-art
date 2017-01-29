@@ -5,6 +5,7 @@ import xmltodict
 from xml.parsers.expat import ExpatError
 from bs4 import BeautifulSoup
 import pandas as pd
+import shutil
 
 def run_art():
     with open('./google_art_cats.txt') as f:
@@ -188,3 +189,18 @@ def _get_all_cats(url_addon=''):
     else:
         url_addon = None
     return titles, nss, pageids, url_addon
+
+
+def download_all_images(df):
+    # Target folder dir
+    out_dir = './im/'
+    # Iterate over dataframe entries
+    for i, urlthumb in df['url_to_thumb'].iteritems():
+        # Set output filename
+        out_file  = df['filename_nospaces'][i]
+        if urlthumb is not None and out_file is not None:
+            # Use requests to download image to folder
+            with urllib.request.urlopen(urlthumb) as response, \
+                open(out_dir + out_file, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
+            # urllib.request.urlretrieve(urlthumb)
