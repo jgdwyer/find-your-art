@@ -10,30 +10,41 @@ import numpy as np
 from webapp.settings import APP_STATIC
 import os
 
-penguin = 'https://upload.wikimedia.org/wikipedia/commons/0/07/Emperor_Penguin_Manchot_empereur.jpg'
-# penguin = './Emperor_Penguin_Manchot_empereur.jpg'
-starfish = 'https://upload.wikimedia.org/wikipedia/commons/0/0d/Starfish.jpg'
-baberuth = 'https://upload.wikimedia.org/wikipedia/commons/0/09/Babe_Ruth_circa_1920.jpg'
-
+do_db = True
 # The number of images to show
 N = 6
-# Load the pandas dataframe
-df = pd.read_pickle(os.path.join(APP_STATIC,'art_a_clean.pickle'))
-# Establish a connection with the PSQL database
-user = 'jgdwyer'
-pswd = '1234'
-host = 'localhost'
-dbname = 'art_2'
-db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.format(user, pswd,
-                                                          host, dbname))
+
+db = None
 con = None
-con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
+df = None
+
+if do_db:
+    # Establish a connection with the PSQL database
+    user = 'jgdwyer'
+    pswd = '1234'
+    host = 'localhost'
+    dbname = 'art_2'
+    db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.format(user, pswd,
+                                                              host, dbname))
+    con = None
+    con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
+else:
+    # Load pandas dataframe
+    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_a_clean.pickle'))
 
 @app.route('/')
 @app.route('/index')
 def index():
+    # Get size of data base
+    if do_db:
+        qry = pd.read_sql_query('SELECT count(*) AS exact_count FROM artworks', con)
+        N_rows = qry.values[0][0]
+        # print(N_rows.values[0][0])
+        # print
+    else:
+        N_rows = len(df)
     # Get 6 random values
-    rand_inds = np.arange(len(df))
+    rand_inds = np.arange(N_rows)
     np.random.shuffle(rand_inds)  # shuffles in place
     rand_inds = list(rand_inds[:N])  # convert to list and limit to N entries
     # Store each random image index as a value in the sessions dictionary
@@ -42,15 +53,14 @@ def index():
     sql_query_pre = "SELECT url_to_thumb FROM artworks WHERE index="
     for i, rand_ind in enumerate(rand_inds):
         session['rnd_ind' + str(i)] = str(rand_ind)
-    # Get urls of thumbnail images
+        # Get urls of thumbnail images
         sql_query = sql_query_pre + str(rand_ind) + ";"
-        thumb_url_np = pd.read_sql_query(sql_query, con)
-        # print(birth_data_from_sql.values[0][0])
-        # Convert from pandas -> numpy -> string value
-        img.append(thumb_url_np.values[0][0])
-
-
-    img = [df['url_to_thumb'][i] for i in rand_inds]
+        if do_db:
+            thumb_url_np = pd.read_sql_query(sql_query, con)
+            # Convert from pandas -> numpy -> string value
+            img.append(thumb_url_np.values[0][0])
+        else:
+            img.append(df['url_to_thumb'][rand_ind])
     # Send to template page
     return render_template('index.html', img=img)
 
@@ -72,19 +82,24 @@ def pagea():
     # Use information from these response and the original input images to
     # decide which are most similar
     # Run Model - Placeholder
-    best_inds = final_imgs(good_inds, bad_inds, q, df, db, con)
+    best_inds = final_imgs(good_inds, bad_inds, q, df, db, con, do_db)
     # Get thumbnail address for best images
     sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
         "FROM artworks WHERE index="
     img, glink, alink, hreslink = [], [], [], []
     for best_ind in best_inds:
         sql_query = sql_query_pre + str(best_ind) + ";"
-        results = pd.read_sql_query(sql_query, con)
-        img.append(results['url_to_thumb'].values[0])
-        glink.append('http://' + results['source_html'].values[0])
-        hreslink.append(results['url_to_im'].values[0])
-        alink.append(link_to_art_dot_com(results['filename_spaces'].values[0]))
-
+        if do_db:
+            results = pd.read_sql_query(sql_query, con)
+            img.append(results['url_to_thumb'].values[0])
+            glink.append('http://' + results['source_html'].values[0])
+            hreslink.append(results['url_to_im'].values[0])
+            alink.append(link_to_art_dot_com(results['filename_spaces'].values[0]))
+        else:
+            img.append(df['url_to_thumb'][best_ind])
+            glink.append('http://' + df['source_html'][best_ind])
+            hreslink.append(df['url_to_im'][best_ind])
+            alink.append(link_to_art_dot_com(df['filename_spaces'][best_ind]))
     # img = [df['url_to_thumb'][i] for i in best_inds]
     # # Get links to google art page
     # glink = ['http://' + df['source_html'][i] for i in best_inds]

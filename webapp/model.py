@@ -1,15 +1,19 @@
 import numpy as np
 import pandas as pd
 
-def final_imgs(good_inds, bad_inds, q, df, db, con):
+def final_imgs(good_inds, bad_inds, q, df, db, con, do_db):
     #Get years of all artworks
     sql_query = "SELECT date FROM artworks;"
-    allyrs = pd.read_sql_query(sql_query, con)
+    if do_db:
+        allyrs = pd.read_sql_query(sql_query, con)
+        allyrs = allyrs['date']
+    else:
+        allyrs = df['date']
     # Find mean year of selected works
-    mean_year = allyrs['date'].iloc[good_inds].mean()
+    mean_year = allyrs.iloc[good_inds].mean()
     # mean_year = df['date'].iloc[good_inds].mean()
     # convert to numpy
-    yrs = allyrs['date'].values
+    yrs = allyrs.values
     yrinds = np.argsort(np.abs(yrs - mean_year))
     best_inds = yrinds[:4]
     print(mean_year)
