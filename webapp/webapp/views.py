@@ -4,13 +4,13 @@ from webapp import app
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 import psycopg2
-from model import final_imgs
+from model import final_imgs, imgs_from_cats
 import pandas as pd
 import numpy as np
 from webapp.settings import APP_STATIC
 import os
 
-do_db = True
+do_db = False
 # The number of images to show
 N = 6
 
@@ -30,7 +30,7 @@ if do_db:
     con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
 else:
     # Load pandas dataframe
-    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_a_clean.pickle'))
+    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_c_clean_cats.pickle'))
 
 @app.route('/')
 @app.route('/index')
@@ -81,8 +81,11 @@ def pagea():
             bad_inds.append(rand_inds[i])
     # Use information from these response and the original input images to
     # decide which are most similar
-    # Run Model - Placeholder
-    best_inds = final_imgs(good_inds, bad_inds, q, df, db, con, do_db)
+    # ------------ Run Model - Placeholder ------------ #
+    # best_inds = final_imgs(good_inds, bad_inds, q, df, db, con, do_db)
+    best_inds = imgs_from_cats(good_inds, bad_inds, q, df, db, con, do_db)
+    print(best_inds)
+    # ------------ Run Model - Placeholder ------------ #
     # Get thumbnail address for best images
     sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
         "FROM artworks WHERE index="
