@@ -11,6 +11,13 @@ def run_cats(df):
     out_cats, _ = min_cats(cnt_cats, N=2)
     return out_cats
 
+def one_hot_encoding(df):
+    """Perform one-hot encoding to convert all categories to 1/0 and add many
+    new rows to the original data frame"""
+    df2 = df['categories_cleaned'].str.get_dummies()
+    df = pd.concat([df, df2], axis=1)
+    return df
+
 def remove_some_cats_from_df(df, make_hist=False, debug=False):
     """Adds a new column to the dataframe (categories_cleaned) that does not
        include extranenous categories"""
@@ -32,7 +39,7 @@ def remove_some_cats_from_df(df, make_hist=False, debug=False):
         # Check to see if they are in "out_cats"
         for orig_cat in orig_cats:
             if orig_cat in new_cat_list:
-                less_cats.append(orig_cat)
+                less_cats.append('catbin:' + orig_cat)
         # Save as new row entry and join strings in list again on delimter
         df.set_value(i, 'categories_cleaned', '||'.join(less_cats))
         # Count number of categories for each entry
