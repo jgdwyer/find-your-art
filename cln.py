@@ -84,6 +84,8 @@ def q_html(yr):
         soup = BeautifulSoup(yr, 'html.parser')
         if soup.time is not None:
             yr = soup.time.text
+        if yr is None:
+            yr = ''
     return yr
 
 def is_int(x):
@@ -103,11 +105,11 @@ def dedashslash(yrstr):
         return yrstr
     # Split string into list if there is a slash or hyphen
     yrlist = re.split('/|-', yrstr)
-    yrlist = [q_all(yritem) for yritem in yrlist]
     if len(yrlist) != 2:
         return None
     if (not is_int(yrlist[0])) or (not is_int(yrlist[1])):
         return None
+    yrlist = [q_all(yritem) for yritem in yrlist]
     if int(yrlist[0]) > int(yrlist[1]):
         # `1519-21` or 319-21
         yrlist[1] = yrlist[0][:-2] + yrlist[1]
