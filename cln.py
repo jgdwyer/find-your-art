@@ -2,14 +2,21 @@ from bs4 import BeautifulSoup
 import re
 import numpy as np
 
+
+
 def convert_year(years, debug=False):
     for i, yr in years.iteritems():
-        do_yr = 0
+        if debug:
+            print(yr)
+            print(type(yr))
         if yr is None:
             years.set_value(i, np.nan)
             continue
-        if debug:
-            print(yr)
+        if is_int(yr):
+            continue
+        if isinstance(yr, float):
+            if np.isnan(yr):
+                continue
         yr = q_html(yr)
         yr = q_all(yr)
         yr = dedashslash(yr)
