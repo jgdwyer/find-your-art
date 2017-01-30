@@ -5,6 +5,7 @@ import numpy as np
 
 
 def convert_year(years, debug=False):
+    """Example usage: db['date'] = cln.convert_year(db['date']) """
     for i, yr in years.iteritems():
         if debug:
             print(yr)
