@@ -6,9 +6,8 @@ from google.cloud import vision
 
 def add_labels_to_df(df):
     # Add new columns to df
-    df = df.assign(label_names = None) #pd.Series(None, index=df.index)
-    df = df.assign(label_scores = None) #pd.Series(None, index=df.index)
-    # df['label_scores'] = None
+    df = df.assign(label_names = None)
+    df = df.assign(label_scores = None) 
     # Loop over rows
     for i, row in df.iterrows():
         if i%200==1:
@@ -57,3 +56,13 @@ def get_labels(ptf, local=True, debug=False):
         row_labels.append(label.description)
         row_scores.append(label.score)
     return row_labels, row_scores
+
+def output_all_labels(df):
+    all_lab=[]
+    for i, row in df.iterrows():
+        lab=row['label_names']
+        if lab is not None:
+            lab_list = lab.split('||')
+            for l in lab_list:
+                all_lab.append(l)
+    return all_lab
