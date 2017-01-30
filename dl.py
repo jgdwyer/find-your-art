@@ -6,6 +6,7 @@ from xml.parsers.expat import ExpatError
 from bs4 import BeautifulSoup
 import pandas as pd
 import shutil
+import os.path
 
 def run_art():
     with open('./google_art_cats.txt') as f:
@@ -197,10 +198,11 @@ def download_all_images(df):
     # Iterate over dataframe entries
     for i, urlthumb in df['url_to_thumb'].iteritems():
         # Set output filename
-        out_file  = df['filename_nospaces'][i]
+        out_file  = df['filename_nospaces'].iloc[[i]].values[0]
         if urlthumb is not None and out_file is not None:
-            # Use requests to download image to folder
-            with urllib.request.urlopen(urlthumb) as response, \
-                open(out_dir + out_file, 'wb') as out_file:
-                shutil.copyfileobj(response, out_file)
-            # urllib.request.urlretrieve(urlthumb)
+            # make sure file does not exist locally
+            if not os.path.isfile(out_dir + out_file):
+                # Use requests to download image to folder
+                with urllib.request.urlopen(urlthumb) as response, \
+                    open(out_dir + out_file, 'wb') as out_file:
+                    shutil.copyfileobj(response, out_file)
