@@ -193,16 +193,19 @@ def _get_all_cats(url_addon=''):
 
 
 def download_all_images(df):
+    """Downloads image thumbnails from wikimedia commons"""
     # Target folder dir
     out_dir = './im/'
+    print(df.shape)
     # Iterate over dataframe entries
-    for i, urlthumb in df['url_to_thumb'].iteritems():
+    for i, row in df.iterrows():
         # Set output filename
-        out_file  = df['filename_nospaces'].iloc[[i]].values[0]
+        urlthumb = row['url_to_thumb']
+        out_file  = row['filename_nospaces']
         if urlthumb is not None and out_file is not None:
             # make sure file does not exist locally
             if not os.path.isfile(out_dir + out_file):
                 # Use requests to download image to folder
                 with urllib.request.urlopen(urlthumb) as response, \
-                    open(out_dir + out_file, 'wb') as out_file:
-                    shutil.copyfileobj(response, out_file)
+                    open(out_dir + out_file, 'wb') as to_write:
+                    shutil.copyfileobj(response, to_write)
