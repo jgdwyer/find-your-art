@@ -1,5 +1,6 @@
 import io
 import os
+import os.path
 # Imports the Google Cloud client library
 from google.cloud import vision
 
@@ -12,17 +13,20 @@ def add_labels_to_df(df):
     for i, row in df.iterrows():
         if i%200==1:
             print(i)
+            df.to_pickle('./dfs/tmp.pickle')
         row_labels = None
         row_scores = None
         if row['filename_nospaces'] is None:
             continue
         ptf = './im/' + row['filename_nospaces']
-        row_labels, row_scores = get_labels(ptf, local=True, debug=False)
-        row_labels = "||".join(row_labels)
-        row_scores = "||".join(map(str, row_scores))
-        #Update dataframe
-        df.set_value(i, 'label_names', row_labels)
-        df.set_value(i, 'label_scores', row_scores)
+        #Ensure that file exists locally
+        if os.path.isfile(ptf):
+            row_labels, row_scores = get_labels(ptf, local=True, debug=False)
+            row_labels = "||".join(row_labels)
+            row_scores = "||".join(map(str, row_scores))
+            #Update dataframe
+            df.set_value(i, 'label_names', row_labels)
+            df.set_value(i, 'label_scores', row_scores)
     return df
 
 def get_labels(ptf, local=True, debug=False):
