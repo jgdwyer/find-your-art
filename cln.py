@@ -2,7 +2,27 @@ from bs4 import BeautifulSoup
 import re
 import numpy as np
 
-
+def verify_year(years):
+    """Example usage: db['date'] = cln.convert_year(db['date'])
+       Verifies that all 'date' entries are nan and counts them up """
+    cnt = 0
+    for i, yr in years.iteritems():
+        if yr is None:
+            years.set_value(i, np.nan)
+            print('none value')
+            cnt+=1
+            continue
+        if isinstance(yr, str):
+            years.set_value(i, np.nan)
+            print('str value')
+            cnt+=1
+            continue
+        if np.isnan(yr):
+            cnt+=1
+            continue
+    print("# of years without values: {:d}".format(cnt))
+    print('# of total year entries: {:d}'.format(years.size))
+    return years
 
 def convert_year(years, debug=False):
     """Example usage: db['date'] = cln.convert_year(db['date']) """
