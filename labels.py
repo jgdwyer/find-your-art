@@ -4,6 +4,8 @@ import os.path
 # Imports the Google Cloud client library
 from google.cloud import vision
 import cats
+import matplotlib.pyplot as plt
+import numpy as np
 
 def add_labels_to_df(df):
     # Add new columns to df
@@ -73,3 +75,38 @@ def run_labels(df):
     out_labels, out_tup_list = cats.min_cats(cnt_labels, N=1)
     # out_labels is the unique labels occuring more than once
     return out_labels, out_tup_list
+
+def remove_some_labs_from_df(df, make_hist=False, debug=False):
+    """Adds a new column to the dataframe (label_names_cleaned) that does not
+       include extranenous labels"""
+    # Add a new column initialized with nans to the data frame
+    df['label_names_cleaned'] = None #pd.Series(None, index=df.index)
+    # This returns a list of good labels
+    new_lab_list, _ = run_labels(df)
+    # Iterate over each row of dataframe
+    rowlen=[]
+    for i, row in df.iterrows():
+        # Show progress
+        if i%1000==1:
+            print(i)
+        if row['label_names'] is None:
+            continue
+        # Get a list of the original labels for this entry
+        orig_labs= row['label_names'].split("||")
+        less_labs = []
+        # Check to see if they are in "out_labs"
+        for orig_lab in orig_labs:
+            if orig_lab in new_lab_list:
+                less_labs.append('labbin:' + orig_lab)
+        # Save as new row entry and join strings in list again on delimter
+        df.set_value(i, 'label_names_cleaned', '||'.join(less_labs))
+        # Count number of labels for each entry
+        rowlen.append(len(less_labs))
+        if debug and i<300:
+            print(orig_labs)
+            print(less_labs)
+            print('--------------------------')
+    if make_hist:
+        plt.hist(rowlen, bins=np.arange(0,15,1),log=True)
+        plt.show()
+    return df
