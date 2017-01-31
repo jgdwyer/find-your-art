@@ -5,3 +5,7 @@ webapp/__pycache__
 webapp/webapp/__pycache__
 .ipynb_checkpoints
 im
+test_for_insight-cdfacb17d596.json
+webapp/webapp/static/*.pickle
+*.ipynb
+artist_name_categories
