@@ -30,7 +30,7 @@ if do_db:
     con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
 else:
     # Load pandas dataframe
-    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_c_clean_cats.pickle'))
+    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_yr_label_cln2_cats_labs_sparse.pickle'))
 
 @app.route('/')
 @app.route('/index')
@@ -39,8 +39,6 @@ def index():
     if do_db:
         qry = pd.read_sql_query('SELECT count(*) AS exact_count FROM artworks', con)
         N_rows = qry.values[0][0]
-        # print(N_rows.values[0][0])
-        # print
     else:
         N_rows = len(df)
     # Get 6 random values
@@ -89,7 +87,7 @@ def pagea():
     # Get thumbnail address for best images
     sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
         "FROM artworks WHERE index="
-    img, glink, alink, hreslink = [], [], [], []
+    imgout, glink, alink, hreslink = [], [], [], []
     for best_ind in best_inds:
         sql_query = sql_query_pre + str(best_ind) + ";"
         if do_db:
@@ -99,10 +97,12 @@ def pagea():
             hreslink.append(results['url_to_im'].values[0])
             alink.append(link_to_art_dot_com(results['filename_spaces'].values[0]))
         else:
-            img.append(df['url_to_thumb'][best_ind])
-            glink.append('http://' + df['source_html'][best_ind])
-            hreslink.append(df['url_to_im'][best_ind])
-            alink.append(link_to_art_dot_com(df['filename_spaces'][best_ind]))
+            print(best_ind)
+            imgout.append(df['url_to_thumb'].iloc[[best_ind]].values[0])
+            glink.append('http://' + df['source_html'].iloc[[best_ind]].values[0])
+            hreslink.append(df['url_to_im'].iloc[[best_ind]].values[0])
+            alink.append(link_to_art_dot_com(df['filename_spaces'].iloc[[best_ind]].values[0]))
+            print(imgout[-1])
     # img = [df['url_to_thumb'][i] for i in best_inds]
     # # Get links to google art page
     # glink = ['http://' + df['source_html'][i] for i in best_inds]
@@ -115,7 +115,7 @@ def pagea():
     # # Get link to high-res version
     # hrlink = [df['url_to_im'][i] for i in best_inds]
     # print(hrlink)
-    return render_template("a.html", img=img, glink=glink, alink=alink,
+    return render_template("a.html", imgout=imgout, glink=glink, alink=alink,
                            hreslink=hreslink)
 
 def link_to_art_dot_com(alink):
