@@ -3,11 +3,18 @@ import operator
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import re
 
 def run_cats(df):
+    # Get most categories including duplicates (but not GAP or artist)
     all_cats = output_all_cats(df)
+    # Exclude very common, unuseful categories
     good_cats = bad_cats(all_cats)
+    # Exclude categories with explicit years -- these are too narrow
+    good_cats = year_cats(good_cats)
+    # Get count frequency
     cnt_cats = count_cats(good_cats, debug=False)
+    # Limit to categories that have at least two entries
     out_cats, _ = min_cats(cnt_cats, N=1)
     return out_cats
 
@@ -49,9 +56,9 @@ def remove_some_cats_from_df(df, make_hist=False, debug=False):
             print(less_cats)
             print('--------------------------')
 
-        if make_hist:
-            plt.hist(rowlen, bins=np.arange(0,15,1),log=True)
-            plt.show()
+    if make_hist:
+        plt.hist(rowlen, bins=np.arange(0,15,1),log=True)
+        plt.show()
     return df
 
 
@@ -103,6 +110,12 @@ def min_cats(sorted_counts, N=1):
             out_tup_list.append((i[0], i[1]))
     return out_list, out_tup_list
 
+def year_cats(in_cats):
+    out_cats = []
+    for c in in_cats:
+        if re.search(r'[12]\d{3}', c) is None:
+            out_cats.append(c)
+    return out_cats
 
 def bad_cats(all_cats):
     """ Removes any cateogry from list that has one of the following terms """
@@ -145,11 +158,11 @@ def bad_cats(all_cats):
            'Pages using duplicate arguments in template calls',
            'Whistler collection at the Freer Gallery of Art',
            'Files not protected by international copyright agreements',
-           '(page does not exist)',
-           'Museum',
-           'Gallery',
-           ' in the ',
-           'Collections of ']
+           '(page does not exist)'] #,
+        #    'Museum',
+        #    'Gallery',
+        #    ' in the ',
+        #    'Collections of ']
     # Initialize the good cats
     good = []
     blen = len(bad)
