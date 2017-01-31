@@ -18,10 +18,11 @@ def run_cats(df):
     out_cats, _ = min_cats(cnt_cats, N=1)
     return out_cats
 
-def one_hot_encoding(df):
+def one_hot_encoding(df, col_name):
     """Perform one-hot encoding to convert all categories to 1/0 and add many
-    new rows to the original data frame"""
-    df2 = df['categories_cleaned'].str.get_dummies()
+    new rows to the original data frame
+    col_name can be 'categories_cleaned' or 'label_names'  """
+    df2 = df[col_name].str.get_dummies()
     df = pd.concat([df, df2], axis=1)
     return df
 
