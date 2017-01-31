@@ -1,6 +1,20 @@
 from bs4 import BeautifulSoup
 import re
 import numpy as np
+import os.path
+
+def drop_duplicatepics(df):
+    """Example usage: df = cln.drop_duplicatepics(db)
+       Drops all rows that have duplicate thumbnails (except 1st occurance)"""
+    z = df.duplicated(subset='url_to_thumb')
+    bad_rows = []
+    for i, boolz in enumerate(z):
+        if boolz:
+            bad_rows.append(i)
+            print(df['url_to_thumb'].iloc[[i]])
+    print(bad_rows)
+    df = df.drop(df.index[bad_rows])
+    return df
 
 def drop_label(df):
     """Example usage: df = cln.verify_label(db)
