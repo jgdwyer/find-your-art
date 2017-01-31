@@ -38,35 +38,17 @@ def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db):
         # Computer pairwise distance
         distance = sklearn.metrics.pairwise_distances(df_cols, user_vec, metric='cosine')
         distance = np.squeeze(distance)
-        print('type is:')
-        print(type(distance))
-        np.save('./distance.npy',distance)
         best_vals = np.sort(distance)[:4]
         best_inds = np.argsort(distance)[:4]
         print('The shortest distances are:')
         print(best_vals)
         print('The best inds are:')
         print(best_inds)
-        # # Make sure these don't actually change the order!!!!!!
-        # print(user_vec.sort_values(ascending=True)[:10])
-        # print(user_vec.sort_values(ascending=False)[:10])
-        # # Loop over rows to find the closest match
-        # cat_mse = np.empty(len(df))
-        # cat_mse[:] = np.nan
-        # for i, row in df[collabels].iterrows():
-        #     if df['categories_cleaned'].iloc[[i]].values[0] is None:
-        #         continue
-        #     if i in good_inds:
-        #         continue
-        #     if len(df['categories_cleaned'].iloc[[i]].values[0])>0:
-        #         cat_mse[i]=(row - user_vec).apply(np.square).sum()
-        # print(np.sort(cat_mse[:10]))
-        # best_inds = np.argsort(cat_mse)[:4]
         for b in best_inds:
-            print(b)
-            print(df['filename_nospaces'].iloc[[b]].values[0])
-            print(df['categories_cleaned'].iloc[[b]].values[0])
-            print(df['label_names_cleaned'].iloc[[b]].values[0])
+            print('Index {:d} ({:s}), cats: {:s}, labels: {:s}'.\
+                format(b, df['filename_nospaces'].iloc[[b]].values[0],
+                          df['categories_cleaned'].iloc[[b]].values[0],
+                          df['label_names_cleaned'].iloc[[b]].values[0]))
         return best_inds
 
 
