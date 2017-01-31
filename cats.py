@@ -8,7 +8,7 @@ def run_cats(df):
     all_cats = output_all_cats(df)
     good_cats = bad_cats(all_cats)
     cnt_cats = count_cats(good_cats, debug=False)
-    out_cats, _ = min_cats(cnt_cats, N=2)
+    out_cats, _ = min_cats(cnt_cats, N=1)
     return out_cats
 
 def one_hot_encoding(df):
