@@ -3,16 +3,17 @@ import os
 import os.path
 # Imports the Google Cloud client library
 from google.cloud import vision
+import cats
 
 def add_labels_to_df(df):
     # Add new columns to df
     df = df.assign(label_names = None)
-    df = df.assign(label_scores = None) 
+    df = df.assign(label_scores = None)
     # Loop over rows
     for i, row in df.iterrows():
-        if i%200==1:
+        if i%20==1:
             print(i)
-            df.to_pickle('./dfs/tmp.pickle')
+            df.to_pickle('./dfs/tmp'+str(i)+'.pickle')
         row_labels = None
         row_scores = None
         if row['filename_nospaces'] is None:
@@ -36,7 +37,6 @@ def get_labels(ptf, local=True, debug=False):
     #file_name = os.path.join(
     #    os.path.dirname(__file__),
     #    'resources/wakeupcat.jpg')
-    file_name = '../im/Leonardo_da_Vinci_-_Head_of_Leda_-_Google_Art_Project.jpg'
     if local:
         # Loads the image into memory
         with io.open(ptf, 'rb') as image_file:
@@ -66,3 +66,10 @@ def output_all_labels(df):
             for l in lab_list:
                 all_lab.append(l)
     return all_lab
+
+def run_labels(df):
+    all_labs = output_all_labels(df)
+    cnt_labels = cats.count_cats(all_labs, debug=False)
+    out_labels, out_tup_list = cats.min_cats(cnt_labels, N=1)
+    # out_labels is the unique labels occuring more than once
+    return out_labels, out_tup_list
