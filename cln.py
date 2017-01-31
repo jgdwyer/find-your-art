@@ -2,8 +2,20 @@ from bs4 import BeautifulSoup
 import re
 import numpy as np
 
+def drop_label(df):
+    """Example usage: df = cln.verify_label(db)
+       Drops all rows that don't have label info """
+    bad_rows=[]
+    for i, row in df.iterrows():
+        if row['label_names'] is None:
+            print('dropping')
+            bad_rows.append(i)
+    print(bad_rows)
+    df = df.drop(df.index[bad_rows])
+    return df
+
 def verify_year(years):
-    """Example usage: db['date'] = cln.convert_year(db['date'])
+    """Example usage: db['date'] = cln.verify_year(db['date'])
        Verifies that all 'date' entries are nan and counts them up """
     cnt = 0
     for i, yr in years.iteritems():
