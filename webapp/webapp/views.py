@@ -45,6 +45,7 @@ def index():
     rand_inds = np.arange(N_rows)
     np.random.shuffle(rand_inds)  # shuffles in place
     rand_inds = list(rand_inds[:N])  # convert to list and limit to N entries
+    print(rand_inds)
     # Store each random image index as a value in the sessions dictionary
     # Note that indices are stored as strings
     img = []
@@ -66,22 +67,38 @@ def index():
 @app.route('/a', methods=['POST'])
 def pagea():
     # Collect decisions from previous page
-    q = 6*[None]
-    rand_inds = 6*[None]
+    print('pagea')
+    # q = N*[0]
+    rand_inds = N*[None]
     good_inds = []
     bad_inds = []
-    for i in range(6):
+    for i in range(N):
+        print('starting loop')
         rand_inds[i] = int(session.get('rnd_ind' + str(i), None))
-        q[i] = int(request.form['q' + str(i)])
-        if q[i]==1:
+    print('now getting formdata pre loop')
+    # Need to use the getlist subroutine b/c form is returning multiple values
+    qlist = request.form.getlist('q')
+    #Check if list is empty
+    if len(qlist)==0:
+        error('Need to select at least one item')
+    # Convert list entries to ints
+    qlist = [int(q) for q in qlist]
+    # Loop over all sample images and check if user selected them
+    for i in range(N):
+        if i in qlist:
+            # Yes - user selected
             good_inds.append(rand_inds[i])
+            print('good: ' + str(i))
         else:
+            # No - user did not select
             bad_inds.append(rand_inds[i])
+            print('bad: ' + str(i))
+
     # Use information from these response and the original input images to
     # decide which are most similar
     # ------------ Run Model - Placeholder ------------ #
-    # best_inds = final_imgs(good_inds, bad_inds, q, df, db, con, do_db)
-    best_inds = imgs_from_cats(good_inds, bad_inds, q, df, db, con, do_db)
+    # best_inds = final_imgs(good_inds, bad_inds, df, db, con, do_db)
+    best_inds = imgs_from_cats(good_inds, bad_inds, df, db, con, do_db)
     print(best_inds)
     # ------------ Run Model - Placeholder ------------ #
     # Get thumbnail address for best images
@@ -103,18 +120,6 @@ def pagea():
             hreslink.append(df['url_to_im'].iloc[[best_ind]].values[0])
             alink.append(link_to_art_dot_com(df['filename_spaces'].iloc[[best_ind]].values[0]))
             print(imgout[-1])
-    # img = [df['url_to_thumb'][i] for i in best_inds]
-    # # Get links to google art page
-    # glink = ['http://' + df['source_html'][i] for i in best_inds]
-    # # Make links to art.com search
-    # alink = [df['filename_spaces'][i] for i in best_inds]
-    # alink = [val.replace(' - Google Art Project.jpg',"") for val in alink]
-    # alink = [val.replace(" -","").replace(" ","%20") for val in alink]
-    # aprefix = 'http://www.art.com/asp/search_do.asp/_/posters.htm?searchstring='
-    # alink = [aprefix + val for val in alink]
-    # # Get link to high-res version
-    # hrlink = [df['url_to_im'][i] for i in best_inds]
-    # print(hrlink)
     return render_template("a.html", imgout=imgout, glink=glink, alink=alink,
                            hreslink=hreslink)
 

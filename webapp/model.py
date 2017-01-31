@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 import sklearn.metrics
-def final_imgs(good_inds, bad_inds, q, df, db, con, do_db):
+def final_imgs(good_inds, bad_inds, df, db, con, do_db):
     #Get years of all artworks
     sql_query = "SELECT date FROM artworks;"
     if do_db:
@@ -22,7 +22,7 @@ def final_imgs(good_inds, bad_inds, q, df, db, con, do_db):
     # print(df['date'].iloc[[best_inds[0],best_inds[1],best_inds[2],best_inds[3]]])
     return best_inds
 
-def imgs_from_cats(good_inds, bad_inds, q, df, db, con, do_db):
+def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db):
     if do_db:
         return None
     else:
@@ -70,7 +70,7 @@ def imgs_from_cats(good_inds, bad_inds, q, df, db, con, do_db):
         return best_inds
 
 
-def imgs_from_cats_old(good_inds, bad_inds, q, df, db, con, do_db):
+def imgs_from_cats_old(good_inds, bad_inds, df, db, con, do_db):
     if do_db:
         return None
     else:
