@@ -14,6 +14,7 @@ def drop_duplicatepics(df):
             print(df['url_to_thumb'].iloc[[i]])
     print(bad_rows)
     df = df.drop(df.index[bad_rows])
+    df = df.reset_index(drop=True)
     return df
 
 def drop_label(df):
@@ -26,6 +27,7 @@ def drop_label(df):
             bad_rows.append(i)
     print(bad_rows)
     df = df.drop(df.index[bad_rows])
+    df = df.reset_index(drop=True)
     return df
 
 def verify_year(years):
