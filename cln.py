@@ -43,6 +43,10 @@ def verify_year(years):
             print('str value')
             cnt+=1
             continue
+        if yr>2050 or yr<-1000:
+            years.set_value(i, np.nan)
+            print('bad year value')
+            cnt+=1
         if np.isnan(yr):
             cnt+=1
             continue
