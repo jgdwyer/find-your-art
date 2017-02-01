@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 import sklearn.metrics
+import time
 def final_imgs(good_inds, bad_inds, df, db, con, do_db):
     #Get years of all artworks
     sql_query = "SELECT date FROM artworks;"
@@ -22,34 +23,36 @@ def final_imgs(good_inds, bad_inds, df, db, con, do_db):
     # print(df['date'].iloc[[best_inds[0],best_inds[1],best_inds[2],best_inds[3]]])
     return best_inds
 
-def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db):
+def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False):
     if do_db:
         return None
     else:
         collabels = [col for col in list(df) if (col.startswith('catbin:') or \
                                                  col.startswith('labbin:'))]
-        good_vec = df[collabels].iloc[good_inds].mean()
-        bad_vec = df[collabels].iloc[bad_inds].mean()
+        # Get all samples
+        df_cols = df[collabels]
+        good_vec = df_cols.iloc[good_inds].mean()
+        bad_vec = df_cols.iloc[bad_inds].mean()
         user_vec = good_vec - 0.1*bad_vec
         # Change to a 1 x n_features vector
         user_vec = user_vec[:,None].T
-        # Get all samples
-        df_cols = df[collabels]
         # Computer pairwise distance
         distance = sklearn.metrics.pairwise_distances(df_cols, user_vec, metric='cosine')
         distance = np.squeeze(distance)
         best_vals = np.sort(distance)[:4]
         best_inds = np.argsort(distance)[:4]
-        print('The shortest distances are:')
-        print(best_vals)
-        print('The best inds are:')
-        print(best_inds)
+        if verbose:
+            print('The shortest distances are:')
+            print(best_vals)
+            print('The best inds are:')
+            print(best_inds)
         for b in best_inds:
-            print('Index {:d} ({:s}), cats: {:s}, labels: {:s}'.\
-                format(b, df['filename_nospaces'].iloc[[b]].values[0],
-                          df['categories_cleaned'].iloc[[b]].values[0],
-                          df['label_names_cleaned'].iloc[[b]].values[0]))
-        return best_inds
+            if verbose:
+                print('--Index {:d}: ({:s})\ncats: {:s}\nlabels: {:s}'.\
+                    format(b, df['filename_nospaces'].iloc[[b]].values[0],
+                              df['categories_cleaned'].iloc[[b]].values[0],
+                              df['label_names_cleaned'].iloc[[b]].values[0]))
+    return best_inds
 
 
 def imgs_from_cats_old(good_inds, bad_inds, df, db, con, do_db):
