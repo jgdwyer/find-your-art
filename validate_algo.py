@@ -7,6 +7,10 @@ def validate_on_artist(verbose=False):
     df = pd.read_pickle('./webapp/webapp/static/art_yr_label_cln2_cats_labs_sparse.pickle')
     # Limit to entries with year values
     df = df[df['date']>0].reset_index(drop=True)
+    collabels = [col for col in list(df) if (col.startswith('catbin:') or \
+                                             col.startswith('labbin:'))]
+    # Get all samples
+    df_cols = df[collabels]
     artists = df['artist_name'].unique()
     # Loop over dataframe and calculate error from year
     err = np.empty(len(artists))
@@ -21,6 +25,8 @@ def validate_on_artist(verbose=False):
             print('----------')
             print(artist)
             print('Err: {:.3f} vs Randerr: {:.3f}'.format(err[i], err_base[i]))
+            print('Running tally: Attempt: {:.1f} Err: {:.1f}, Randerr: {:.1f}'.format(sum(np.isfinite(err[:i])),
+            np.nansum(err[:i]), np.nansum(err_base[:i])))
             print('----------')
     return err, err_base
 
@@ -28,6 +34,7 @@ def _validate_on_artist2(df, artist, algorandom=False, verbose=False):
     """Selects a few images randomly with the same year as the input variable
     and measures accuracy of prediction"""
     # Pick three entries with the same year as that selected (or output nan)
+    # It's important not to "reset_index" here!
     df_artist = df[df['artist_name']==artist]
     if len(df_artist) < 8:
         return np.nan
