@@ -65,6 +65,19 @@ def top_user_features(df_features, user_vec):
     for ind, scr in zip(worst_feature_ind, worst_feature_scr):
         print(df_features.columns[ind] + '...{:.2f}'.format(scr))
 
+def most_similar_distance_features_to_user(df_features, best_inds, user_vec):
+    user_mat = np.diag(np.squeeze(user_vec.T))
+    distance = np.zeros(len(df_features.columns))
+    for b in best_inds:
+        distance1 = sklearn.metrics.pairwise_distances(user_mat,
+                                                      df_features.iloc[[b]],
+                                                      metric='cosine')
+        distance += np.squeeze(distance)
+    cat_vals = np.sort(distance)[:20]
+    cat_inds = np.argsort(distance)[:20]
+    print(cat_vals)
+    print(df_features.columns[cat_inds])
+
 def feature_only_df(df):
     """Return a dataframe that only includes the features"""
     # Get column labels of features
@@ -91,6 +104,8 @@ def get_similar_art(good_inds, bad_inds, df):
     # Sort ascending to get top four results
     best_vals = np.sort(distance)[:4]
     best_inds = np.argsort(distance)[:4]
+    #Measure similarity to each category
+    most_similar_distance_features_to_user(df_features, best_inds, user_vec)
     return best_inds
 
 
