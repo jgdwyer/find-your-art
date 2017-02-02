@@ -6,7 +6,7 @@ import time
 import webapp.model as m
 
 def validate_on_artist(verbose=False):
-    df = pd.read_pickle('./webapp/webapp/static/art_yr_label_cln2_cats_labs_sparse.pickle')
+    df = pd.read_pickle('./webapp/webapp/static/art_yr_label_cln2_cats_labs_sparse_cln.pickle')
     # Limit to entries with year values
     df = df[df['date']>0].reset_index(drop=True)
     collabels = [col for col in list(df) if (col.startswith('catbin:') or \
