@@ -30,7 +30,7 @@ if do_db:
     con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
 else:
     # Load pandas dataframe
-    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_yr_label_cln2_cats_labs_sparse.pickle'))
+    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_yr_label_cln2_cats_labs_sparse_cln.pickle'))
 
 @app.route('/')
 @app.route('/index')
