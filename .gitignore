@@ -9,3 +9,6 @@ test_for_insight-cdfacb17d596.json
 webapp/webapp/static/*.pickle
 *.ipynb
 artist_name_categories
+webapp/__init__.pyc
+webapp/*.pyc
+*.pyc
