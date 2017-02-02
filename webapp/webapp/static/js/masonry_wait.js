@@ -5,8 +5,8 @@ $(document).ready(function () {
 
     var $container = $('.image_picker_selector');
     // initialize
-    $grid.imagesLoaded(function () {
-        $grid.masonry({
+    $container.imagesLoaded(function () {
+        $container.masonry({
             columnWidth: 30,
             itemSelector: '.thumbnail'
         });
