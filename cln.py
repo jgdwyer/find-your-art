@@ -11,7 +11,11 @@ def drop_sketches(df):
              'James Ward','George Stubbs','unknown artist (Britain)']
     for artist in artists:
         z= df[df['artist_name'] == artist]
-        badbool = z['label_names_cleaned'].str.contains('sketch')
+        if artist=='Felice Beato' or artist=='unknown artist (Britain)':
+            #Delete all of these works
+            badbool = z['label_names_cleaned'].str.contains('lab')
+        else:
+            badbool = z['label_names_cleaned'].str.contains('sketch')
         badlist = z[badbool].index.tolist()
         df = df.drop(df.index[badlist])
         df = df.reset_index(drop=True)
