@@ -3,6 +3,42 @@ import pandas as pd
 from scipy.spatial.distance import cdist
 import sklearn.metrics
 import time
+import random
+
+def m_metric(artist, good_inds, bad_inds, df, df_cols, metric, bad_weight):
+    """metric: 'cosine', 'cityblock', euclidean', 'l1', l2'
+       bad_weight: 0, 0.1, 1
+       returns 1 if matches original artist and 0 if not"""
+    if metric=='random':
+        best_inds = random.sample(range(len(df)), 4)
+    else:
+        good_vec = df_cols.iloc[good_inds].sum()
+        bad_vec = df_cols.iloc[bad_inds].sum()
+        user_vec = good_vec - bad_weight*bad_vec
+        # Change to a 1 x n_features vector
+        user_vec = user_vec[:,None].T
+        # Computer pairwise distance
+        distance = sklearn.metrics.pairwise_distances(df_cols, user_vec, metric=metric)
+        distance = np.squeeze(distance)
+        distance = remove_init_results(distance, good_inds, bad_inds)
+        # Sort ascending to get top results
+        best_vals = np.sort(distance)[:4]
+        best_inds = np.argsort(distance)[:4]
+    # Now determine whether we got the artist
+    score = 0
+    for b in best_inds:
+        pred_artist = df['artist_name'].iloc[[b]].values[0]
+        if pred_artist == artist:
+            score = 1
+    return score
+
+def remove_init_results(distance, good_inds, bad_inds):
+    """Since we don't want to return the results we showed initially,
+       set them to nan"""
+    distance[good_inds] = np.nan
+    distance[bad_inds] = np.nan
+    return distance
+
 def final_imgs(good_inds, bad_inds, df, db, con, do_db):
     #Get years of all artworks
     sql_query = "SELECT date FROM artworks;"
