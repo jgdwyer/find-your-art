@@ -47,10 +47,23 @@ def get_user_vector(good_inds, bad_inds, df_features):
     # And sum over images the user did not like
     bad_vec = df_features.iloc[bad_inds].sum()
     # Simple difference seems to work quite well
-    user_vec = good_vec - bad_vec
+    user_vec = good_vec - 0.1*bad_vec
     # Change this to a 1xN_features vector for distance calculations
     user_vec = user_vec[:,None].T
     return user_vec
+
+def top_user_features(df_features, user_vec):
+    user_vec = np.squeeze(user_vec.T)
+    best_feature_scr = np.sort(user_vec)[::-1][:30]
+    best_feature_ind = np.argsort(user_vec)[::-1][:30]
+    worst_feature_scr = np.sort(user_vec)[:30]
+    worst_feature_ind = np.argsort(user_vec)[:30]
+    print('User likes-----')
+    for ind, scr in zip(best_feature_ind, best_feature_scr):
+        print(df_features.columns[ind] + '...{:.2f}'.format(scr))
+    print('User does not like-----')
+    for ind, scr in zip(worst_feature_ind, worst_feature_scr):
+        print(df_features.columns[ind] + '...{:.2f}'.format(scr))
 
 def feature_only_df(df):
     """Return a dataframe that only includes the features"""
@@ -71,12 +84,15 @@ def get_similar_art(good_inds, bad_inds, df):
     # Computer pairwise distance and convert to a N_samples x 1 vector
     distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='cosine')
     distance = np.squeeze(distance)
+    #Get user top categories
+    top_user_features(df_features, user_vec)
     # Remove any indices that we initially showed the user
     distance = remove_init_results(distance, good_inds, bad_inds)
     # Sort ascending to get top four results
     best_vals = np.sort(distance)[:4]
     best_inds = np.argsort(distance)[:4]
     return best_inds
+
 
 def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False):
     if do_db:
