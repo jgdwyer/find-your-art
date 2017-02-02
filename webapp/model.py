@@ -39,6 +39,10 @@ def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False):
         # Computer pairwise distance
         distance = sklearn.metrics.pairwise_distances(df_cols, user_vec, metric='cosine')
         distance = np.squeeze(distance)
+        # Since we don't want to return the results we showed initially,
+        # Set them to nan
+        distance[good_inds] = np.nan
+        distance[bad_inds] = np.nan
         best_vals = np.sort(distance)[:4]
         best_inds = np.argsort(distance)[:4]
         if verbose:
