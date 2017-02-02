@@ -49,10 +49,10 @@ def _validate_on_artist(df, df_cols, artist, verbose=False):
     score[0] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 0.1)
     score[1] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 0)
     score[2] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 1)
-    score[3] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cityblock', 1)
-    score[4] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'euclidean', 1)
-    score[5] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'l1', 1)
-    score[6] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'l2', 1)
-    score[7] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'random', 1)
+    score[3] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cityblock', 0.1)
+    score[4] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'euclidean', 0.1)
+    score[5] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'l1', 0.1)
+    score[6] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'l2', 0.1)
+    score[7] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'random', None)
 
     return score
