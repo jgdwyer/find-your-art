@@ -71,7 +71,7 @@ def most_similar_distance_features_to_user(df_features, best_inds, user_vec):
     for b in best_inds:
         distance1 = sklearn.metrics.pairwise_distances(user_mat,
                                                       df_features.iloc[[b]],
-                                                      metric='cosine')
+                                                      metric='euclidean')
         distance += np.squeeze(distance1)
     cat_vals = np.sort(distance)[:20]
     cat_inds = np.argsort(distance)[:20]
