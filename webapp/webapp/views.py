@@ -98,7 +98,7 @@ def pagea():
     # decide which are most similar
     # ------------ Run Model - Placeholder ------------ #
     # best_inds = final_imgs(good_inds, bad_inds, df, db, con, do_db)
-    best_inds = imgs_from_cats(good_inds, bad_inds, df, db, con, do_db)
+    best_inds = imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False)
     print(best_inds)
     # ------------ Run Model - Placeholder ------------ #
     # Get thumbnail address for best images
