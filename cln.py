@@ -3,6 +3,20 @@ import re
 import numpy as np
 import os.path
 
+def drop_sketches(df):
+    """Drop artists from dataframe that are vastly overrepresented and/or whose
+    work largely includes many sketches/photographs"""
+    artists=['George Romney','William Blake','Edward Lear','Thomas Rowlandson',
+             'Felice Beato','Joseph Mallord William Turner','John Robert Cozens',
+             'James Ward','George Stubbs','unknown artist (Britain)']
+    for artist in artists:
+        z= df[df['artist_name'] == artist]
+        badbool = z['label_names_cleaned'].str.contains('sketch')
+        badlist = z[badbool].index.tolist()
+        df = df.drop(df.index[badlist])
+        df = df.reset_index(drop=True)
+    return df
+
 def drop_duplicatepics(df):
     """Example usage: df = cln.drop_duplicatepics(db)
        Drops all rows that have duplicate thumbnails (except 1st occurance)"""
