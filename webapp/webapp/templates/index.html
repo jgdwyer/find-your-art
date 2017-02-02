@@ -16,12 +16,9 @@
     <form action="/a" method="POST", id="form">
 
     <select name="q" id="ims" multiple="multiple" class="image-picker show-html">
-      <option data-img-src="{{img.0}}" value="0"></option>
-      <option data-img-src="{{img.1}}" value="1"></option>
-      <option data-img-src="{{img.2}}" value="2"></option>
-      <option data-img-src="{{img.3}}" value="3"></option>
-      <option data-img-src="{{img.4}}" value="4"></option>
-      <option data-img-src="{{img.5}}" value="5"></option>
+      {% for item in img %}
+      <option data-img-src="{{item}}" value="{{loop.index0}}"></option>
+      {% endfor %}
     </select>
       <script>
         jQuery("select.image-picker").imagepicker({
