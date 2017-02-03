@@ -53,6 +53,7 @@ def get_user_vector(good_inds, bad_inds, df_features):
     return user_vec
 
 def top_user_features(df_features, user_vec):
+    """Given a user vector, calculate the features that the user liked"""
     user_vec = np.squeeze(user_vec.T)
     best_feature_scr = np.sort(user_vec)[::-1][:30]
     best_feature_ind = np.argsort(user_vec)[::-1][:30]
@@ -64,6 +65,23 @@ def top_user_features(df_features, user_vec):
     print('User does not like-----')
     for ind, scr in zip(worst_feature_ind, worst_feature_scr):
         print(df_features.columns[ind] + '...{:.2f}'.format(scr))
+    # Get a lits of top features to return to the webapp
+    top_features = []
+    uninformative_features = ['labbin:art', 'labbin:painting', 'labbin:drawing',
+                              'labbin:illustration', 'labbin:sketch']
+    for ind, scr in zip(best_feature_ind, best_feature_scr):
+        feature = df_features.columns[ind]
+        if feature not in uninformative_features and scr > 1:
+            top_features.append(feature[7:])
+    top_features = set(top_features)
+    if len(top_features)<3:
+        top_features = []
+        for ind, scr in zip(best_feature_ind, best_feature_scr):
+            feature = df_features.columns[ind]
+            if feature not in uninformative_features and scr > 0:
+                top_features.append(feature[7:])
+        top_features = top_features[:5]
+    return top_features
 
 def most_similar_distance_features_to_user(df_features, best_inds, user_vec):
     user_mat = np.diag(np.squeeze(user_vec.T))
@@ -98,7 +116,7 @@ def get_similar_art(good_inds, bad_inds, df):
     distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='cosine')
     distance = np.squeeze(distance)
     #Get user top categories
-    top_user_features(df_features, user_vec)
+    top_features = top_user_features(df_features, user_vec)
     # Remove any indices that we initially showed the user
     distance = remove_init_results(distance, good_inds, bad_inds)
     # Sort ascending to get top four results
@@ -106,7 +124,7 @@ def get_similar_art(good_inds, bad_inds, df):
     best_inds = np.argsort(distance)[:4]
     #Measure similarity to each category
     most_similar_distance_features_to_user(df_features, best_inds, user_vec)
-    return best_inds
+    return best_inds, top_features
 
 
 def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False):

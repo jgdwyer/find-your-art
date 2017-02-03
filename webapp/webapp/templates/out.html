@@ -46,5 +46,10 @@
      </div>
     </div>
     <br><br>
+    <u>Here are some things you may like</u>:
+    {% for feat in top_features %}
+        <br>{{feat}}
+    {% endfor %}
+    <br><br>
     <a href="">I'm unhappy with these results</a>
 {% endblock %}

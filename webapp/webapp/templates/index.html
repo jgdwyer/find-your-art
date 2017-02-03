@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<form action="/a" method="POST", id="form">
+<form action="/results" method="POST", id="form">
     <select name="q" id="selectImage" multiple="multiple" class="image-picker">
       {% for item in img %}
           <option data-img-src="{{item}}" value="{{loop.index0}}"></option>

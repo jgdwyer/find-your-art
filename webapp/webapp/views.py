@@ -64,7 +64,7 @@ def index():
     return render_template('index.html', img=img)
 
 
-@app.route('/a', methods=['POST'])
+@app.route('/results', methods=['POST'])
 def pagea():
     # Collect decisions from previous page
     print('pagea')
@@ -98,7 +98,7 @@ def pagea():
     # decide which are most similar
     # ------------ Run Model -  ------------ #
     # best_inds = final_imgs(good_inds, bad_inds, df, db, con, do_db)
-    best_inds = model.get_similar_art(good_inds, bad_inds, df)
+    best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df)
     # best_inds = imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False)
     print(best_inds)
     # ------------ Run Model -  ------------ #
@@ -121,8 +121,9 @@ def pagea():
             hreslink.append(df['url_to_im'].iloc[[best_ind]].values[0])
             alink.append(link_to_art_dot_com(df['filename_spaces'].iloc[[best_ind]].values[0]))
             artwork_name.append(df['filename_spaces'].iloc[[best_ind]].values[0].replace(' - Google Art Project.jpg',""))
-    return render_template("a.html", imgout=imgout, glink=glink, alink=alink,
-                           hreslink=hreslink, artwork_name=artwork_name)
+    return render_template("out.html", imgout=imgout, glink=glink, alink=alink,
+                           hreslink=hreslink, artwork_name=artwork_name,
+                           top_features=top_features)
 
 def link_to_art_dot_com(alink):
     alink = alink.replace(' - Google Art Project.jpg',"")
