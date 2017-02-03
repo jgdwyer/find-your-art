@@ -12,3 +12,4 @@ artist_name_categories
 webapp/__init__.pyc
 webapp/*.pyc
 *.pyc
+figs
