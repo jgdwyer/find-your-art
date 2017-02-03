@@ -13,3 +13,4 @@ webapp/__init__.pyc
 webapp/*.pyc
 *.pyc
 figs
+file_output
