@@ -4,6 +4,7 @@ import webapp.model
 import random
 import time
 import webapp.model as m
+import matplotlib.pyplot as plt
 
 def validate_on_artist(verbose=False):
     df = pd.read_pickle('./webapp/webapp/static/art_yr_label_cln2_cats_labs_sparse_cln.pickle')
@@ -47,8 +48,8 @@ def _validate_on_artist(df, df_cols, artist, verbose=False):
     score[:] = np.nan
     # Evaluate different models
     score[0] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 0.1)
-    score[1] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 0)
-    score[2] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 1)
+    score[1] = np.nan #m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 0)
+    score[2] = np.nan #m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 1)
     score[3] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cityblock', 0.1)
     score[4] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'euclidean', 0.1)
     score[5] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'l1', 0.1)
@@ -56,3 +57,21 @@ def _validate_on_artist(df, df_cols, artist, verbose=False):
     score[7] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'random', None)
 
     return score
+
+def plot_validation():
+    #Can load score.npy file and do np.nansum(score,axis=1)
+    # But just define directly
+    fo=20
+    z = np.array([ 53.,  54.,  66.,  54.,  66., 2.]) / 330. * 100.
+    labs = ['None (baseline)', 'L2', 'L1', 'Euclidean', 'Cityblock', 'Cosine']
+    with plt.style.context('seaborn'):
+        plt.figure(figsize=(6,8))
+        plt.barh(range(len(z)), z[::-1], tick_label=labs) #, edgecolor='k', color='w')
+        plt.gca().set_xticks([0, 5, 10, 15, 20])
+        plt.gca().set_xticklabels(['0%','5%', '10%', '15%', '20%'])
+        plt.tick_params(axis='both', which='major', labelsize=fo)
+        plt.title('Validation on Artists', fontsize=fo)
+        plt.xlabel('Probability of recommending\n the same artist', fontsize=fo)
+        plt.tight_layout()
+        plt.savefig('./figs/validation.eps')
+        plt.show()
