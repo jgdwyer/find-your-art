@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="page-header">
+   <h1>Your Closest Matches</h1>
+ </div>
     <div class="container">
       <div class="row">
        <div class="col-xs-12 col-md-6">
@@ -46,9 +49,17 @@
      </div>
     </div>
     <br><br>
-    <u>Here are some things you may like</u>:
+    <div class="page-header">
+       <h1>Here are some things you may like</h1>
+     </div>
+    <!-- <u>Here are some things you may like</u>: -->
     {% for feat in top_features %}
-        <br>{{feat}}
+      {% if loop.index < 5 %}
+        <h{{loop.index}}><span class="label label-default">{{feat}}</span></h{{loop.index}}>
+      {% else %}
+        <h4><span class="label label-default">{{feat}}</span></h{{loop.index}}></h4>
+      {% endif %}
+        <!-- <br>{{feat}} -->
     {% endfor %}
     <br><br>
     <a href="">I'm unhappy with these results</a>
