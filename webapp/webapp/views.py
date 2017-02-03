@@ -105,7 +105,7 @@ def pagea():
     # Get thumbnail address for best images
     sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
         "FROM artworks WHERE index="
-    imgout, glink, alink, hreslink = [], [], [], []
+    imgout, glink, alink, hreslink, artwork_name = [], [], [], [], []
     for best_ind in best_inds:
         sql_query = sql_query_pre + str(best_ind) + ";"
         if do_db:
@@ -120,9 +120,9 @@ def pagea():
             glink.append('http://' + df['source_html'].iloc[[best_ind]].values[0])
             hreslink.append(df['url_to_im'].iloc[[best_ind]].values[0])
             alink.append(link_to_art_dot_com(df['filename_spaces'].iloc[[best_ind]].values[0]))
-            print(imgout[-1])
+            artwork_name.append(df['filename_spaces'].iloc[[best_ind]].values[0].replace(' - Google Art Project.jpg',""))
     return render_template("a.html", imgout=imgout, glink=glink, alink=alink,
-                           hreslink=hreslink)
+                           hreslink=hreslink, artwork_name=artwork_name)
 
 def link_to_art_dot_com(alink):
     alink = alink.replace(' - Google Art Project.jpg',"")
