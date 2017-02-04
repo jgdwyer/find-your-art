@@ -7,10 +7,8 @@ $(document).ready(function () {
     // initialize
     $container.imagesLoaded(function () {
         $container.masonry({
-            columnWidth: 30,
+            columnWidth: 40,
             itemSelector: '.thumbnail'
         });
     });
 });
-
-// http://jsfiddle.net/huanlin/mgvrc/
