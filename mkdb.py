@@ -37,3 +37,4 @@ def separate_db_and_pd():
         df_dense.drop('index', axis=1, inplace=True)
     # Store dense dataframe w/o features in database
     store_db(df_dense)
+    df_dense.to_pickle('./dfs/art_yr_label_cln2_cats_labs_sparse_cln_nofeats.pickle')
