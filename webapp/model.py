@@ -113,7 +113,7 @@ def get_similar_art(good_inds, bad_inds, df):
     # Calculate user profile
     user_vec = get_user_vector(good_inds, bad_inds, df_features)
     # Computer pairwise distance and convert to a N_samples x 1 vector
-    distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='cosine')
+    distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='euclidean')
     distance = np.squeeze(distance)
     #Get user top categories
     top_features = top_user_features(df_features, user_vec)
