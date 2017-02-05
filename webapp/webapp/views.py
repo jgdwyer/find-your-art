@@ -10,7 +10,7 @@ import numpy as np
 from webapp.settings import APP_STATIC
 import os
 
-do_db = True
+do_db = False
 # The number of images to show
 N = 36
 
@@ -28,15 +28,15 @@ if do_db:
                                                               host, dbname))
     con = None
     con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
-    df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
-        'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
-    df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
-        'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly_distance2.pickle'))
 
 else:
     # Load pandas dataframe
-    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
+    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_yr_label_cln2_cats_labs_sparse_cln_nofeats.pickle'))
 
+df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
+    'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
+df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
+    'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly_distance2.pickle'))
 
 @app.route('/')
 @app.route('/index')
