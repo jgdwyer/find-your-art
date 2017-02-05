@@ -125,6 +125,11 @@ def pagea():
                            hreslink=hreslink, artwork_name=artwork_name,
                            top_features=top_features)
 
+@app.route('/about')
+def about():
+   # Send to template page
+   return render_template('about.html')
+
 def link_to_art_dot_com(alink):
     alink = alink.replace(' - Google Art Project.jpg',"")
     alink = alink.replace(" -","").replace(" ","%20")
