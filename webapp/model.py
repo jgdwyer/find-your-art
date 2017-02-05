@@ -68,7 +68,8 @@ def top_user_features(df_features, user_vec):
     # Get a lits of top features to return to the webapp
     top_features = []
     uninformative_features = ['labbin:art', 'labbin:painting', 'labbin:drawing',
-                              'labbin:illustration', 'labbin:sketch']
+                              'labbin:illustration', 'labbin:sketch',
+                              'labbin:picture frame']
     for ind, scr in zip(best_feature_ind, best_feature_scr):
         feature = df_features.columns[ind]
         if feature not in uninformative_features and scr > 1:
