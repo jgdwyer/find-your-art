@@ -105,7 +105,7 @@ def feature_only_df(df):
     df_features = df[collabels]
     return df_features
 
-def get_similar_art(good_inds, bad_inds, df):
+def get_similar_art(good_inds, bad_inds, df, df_pre2):
     """Given images a user likes and does not like, return the most similar!
        """
     # Get a dataframe where the only columns are features
@@ -113,7 +113,9 @@ def get_similar_art(good_inds, bad_inds, df):
     # Calculate user profile
     user_vec = get_user_vector(good_inds, bad_inds, df_features)
     # Computer pairwise distance and convert to a N_samples x 1 vector
-    distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='euclidean')
+    # distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='euclidean')
+    distance = sklearn.metrics.pairwise.euclidean_distances(df_features, user_vec,
+                                                            X_norm_squared=df_pre2)
     distance = np.squeeze(distance)
     #Get user top categories
     top_features = top_user_features(df_features, user_vec)

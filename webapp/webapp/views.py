@@ -10,7 +10,7 @@ import numpy as np
 from webapp.settings import APP_STATIC
 import os
 
-do_db = False
+do_db = True
 # The number of images to show
 N = 36
 
@@ -23,14 +23,20 @@ if do_db:
     user = 'jgdwyer'
     pswd = '1234'
     host = 'localhost'
-    dbname = 'art_2'
+    dbname = 'art_3'
     db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.format(user, pswd,
                                                               host, dbname))
     con = None
     con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
+    df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
+        'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
+    df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
+        'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly_distance2.pickle'))
+
 else:
     # Load pandas dataframe
-    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_yr_label_cln2_cats_labs_sparse_cln.pickle'))
+    df = pd.read_pickle(os.path.join(APP_STATIC, 'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
+
 
 @app.route('/')
 @app.route('/index')
@@ -98,7 +104,7 @@ def pagea():
     # decide which are most similar
     # ------------ Run Model -  ------------ #
     # best_inds = final_imgs(good_inds, bad_inds, df, db, con, do_db)
-    best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df)
+    best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df_feat, df_pre2)
     # best_inds = imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False)
     print(best_inds)
     # ------------ Run Model -  ------------ #
@@ -110,7 +116,8 @@ def pagea():
         sql_query = sql_query_pre + str(best_ind) + ";"
         if do_db:
             results = pd.read_sql_query(sql_query, con)
-            img.append(results['url_to_thumb'].values[0])
+            print(results)
+            imgout.append(results['url_to_thumb'].values[0])
             glink.append('http://' + results['source_html'].values[0])
             hreslink.append(results['url_to_im'].values[0])
             alink.append(link_to_art_dot_com(results['filename_spaces'].values[0]))
