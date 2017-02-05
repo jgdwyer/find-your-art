@@ -12,7 +12,7 @@ import os
 
 do_db = False
 # The number of images to show
-N = 24
+N = 36
 
 db = None
 con = None
