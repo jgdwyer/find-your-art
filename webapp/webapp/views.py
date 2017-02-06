@@ -55,21 +55,9 @@ def index():
     print(rand_inds)
     # Store each random image index as a value in the sessions dictionary
     # Note that indices are stored as strings
-    img = []
-    sql_query_pre = "SELECT url_to_thumb FROM artworks WHERE index="
-    for i, rand_ind in enumerate(rand_inds):
-        session['rnd_ind' + str(i)] = str(rand_ind)
-        # Get urls of thumbnail images
-        sql_query = sql_query_pre + str(rand_ind) + ";"
-        if do_db:
-            thumb_url_np = pd.read_sql_query(sql_query, con)
-            # Convert from pandas -> numpy -> string value
-            img.append(thumb_url_np.values[0][0])
-        else:
-            img.append(df['url_to_thumb'][rand_ind])
+    img, session = append_random_imgs(rand_inds, do_db, con, df)
     # Send to template page
     return render_template('index.html', img=img)
-
 
 @app.route('/results', methods=['POST'])
 def pagea():
@@ -137,6 +125,21 @@ def pagea():
 def about():
    # Send to template page
    return render_template('about.html')
+
+def append_random_imgs(rand_inds, do_db, con, df):
+    img = []
+    sql_query_pre = "SELECT url_to_thumb FROM artworks WHERE index="
+    for i, rand_ind in enumerate(rand_inds):
+        session['rnd_ind' + str(i)] = str(rand_ind)
+        # Get urls of thumbnail images
+        sql_query = sql_query_pre + str(rand_ind) + ";"
+        if do_db:
+            thumb_url_np = pd.read_sql_query(sql_query, con)
+            # Convert from pandas -> numpy -> string value
+            img.append(thumb_url_np.values[0][0])
+        else:
+            img.append(df['url_to_thumb'][rand_ind])
+    return img, session
 
 def link_to_art_dot_com(alink):
     alink = alink.replace(' - Google Art Project.jpg',"")
