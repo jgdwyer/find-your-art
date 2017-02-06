@@ -3,13 +3,14 @@ import cln
 from sqlalchemy import create_engine
 import pandas as pd
 import psycopg2
+import getpass
 
-def store_db(df, user):
+def store_db(df):
     """ From command line in proper environment, first run:
     $ createdb art_3
     $ psql art_3
-    user could be 'jgdwyer' or 'ubuntu'
     """
+    user = getpass.getuser()
     df['date'] = cln.convert_year(df['date'], debug=False)
     engine = create_engine('postgresql://' + user + ':1234@localhost/art_3')
     print(engine.url)
