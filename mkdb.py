@@ -4,13 +4,14 @@ from sqlalchemy import create_engine
 import pandas as pd
 import psycopg2
 
-def store_db(df):
+def store_db(df, user):
     """ From command line in proper environment, first run:
-    $ createdb birth_db
-    $ psql birth_db
+    $ createdb art_3
+    $ psql art_3
+    user could be 'jgdwyer' or 'ubuntu'
     """
     df['date'] = cln.convert_year(df['date'], debug=False)
-    engine = create_engine('postgresql://jgdwyer:1234@localhost/art_3')
+    engine = create_engine('postgresql://' + user + ':1234@localhost/art_3')
     print(engine.url)
     df.to_sql('artworks', engine, if_exists='replace')
 
