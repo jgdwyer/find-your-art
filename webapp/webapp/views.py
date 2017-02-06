@@ -30,9 +30,12 @@ if do_db:
     con = None
     con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
 
+    qry = pd.read_sql_query('SELECT count(*) AS exact_count FROM artworks', con)
+    N_rows = qry.values[0][0]
 else:
     # Load pandas dataframe
     df = pd.read_pickle(os.path.join(APP_STATIC, 'art_yr_label_cln2_cats_labs_sparse_cln_nofeats.pickle'))
+    N_rows = len(df)
 
 df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
@@ -42,12 +45,6 @@ df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
 @app.route('/')
 @app.route('/index')
 def index():
-    # Get size of data base
-    if do_db:
-        qry = pd.read_sql_query('SELECT count(*) AS exact_count FROM artworks', con)
-        N_rows = qry.values[0][0]
-    else:
-        N_rows = len(df)
     # Get 6 random values
     rand_inds = np.arange(N_rows)
     np.random.shuffle(rand_inds)  # shuffles in place
@@ -58,6 +55,16 @@ def index():
     img, session = append_random_imgs(rand_inds, do_db, con, df)
     # Send to template page
     return render_template('index.html', img=img)
+
+
+@app.route('/demo_seed')
+def demo_seed():
+    inds = [6352, 5121, 7332, 11110, 10679, 9802, 3105, 8820, 117, 12730, 6014, 1643, 433,
+            4040, 5050, 2121, 7570, 12389, 3205, 7142, 898, 3190, 395, 9023,
+             12162, 2502, 1350, 2276, 10198, 14156, 493, 13936, 6992, 774, 7422, 4412]
+    img, session = append_random_imgs(inds, do_db, con, df)
+    return render_template('index.html', img=img)
+
 
 @app.route('/results', methods=['POST'])
 def pagea():
