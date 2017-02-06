@@ -9,8 +9,9 @@ import pandas as pd
 import numpy as np
 from webapp.settings import APP_STATIC
 import os
+import getpass
 
-do_db = False
+do_db = True
 # The number of images to show
 N = 36
 
@@ -20,7 +21,7 @@ df = None
 
 if do_db:
     # Establish a connection with the PSQL database
-    user = 'jgdwyer'
+    user = getpass.getuser()
     pswd = '1234'
     host = 'localhost'
     dbname = 'art_3'
