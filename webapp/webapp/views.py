@@ -117,6 +117,7 @@ def pagea():
             glink.append('http://' + results['source_html'].values[0])
             hreslink.append(results['url_to_im'].values[0])
             alink.append(link_to_art_dot_com(results['filename_spaces'].values[0]))
+            artwork_name.append(results['filename_spaces'].values[0].replace(' - Google Art Project.jpg',""))
         else:
             print(best_ind)
             imgout.append(df['url_to_thumb'].iloc[[best_ind]].values[0])
