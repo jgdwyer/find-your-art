@@ -45,10 +45,11 @@ df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
 @app.route('/')
 @app.route('/index')
 def index():
-    # Get 6 random values
-    rand_inds = np.arange(N_rows)
-    np.random.shuffle(rand_inds)  # shuffles in place
-    rand_inds = list(rand_inds[:N])  # convert to list and limit to N entries
+    # Get totally random initial values
+    # rand_inds = np.arange(N_rows)
+    # np.random.shuffle(rand_inds)  # shuffles in place
+    # rand_inds = list(rand_inds[:N])  # convert to list and limit to N entries
+    rand_inds = two_inds_per_cluster(con)
     print(rand_inds)
     # Store each random image index as a value in the sessions dictionary
     # Note that indices are stored as strings
@@ -133,6 +134,23 @@ def pagea():
 def about():
    # Send to template page
    return render_template('about.html')
+
+def two_inds_per_cluster(con):
+    """Returns 36 index values with two values from each of the 18 clusters"""
+    rand_inds = []
+    # Loop over clusters
+    for i in range(18):
+        qry = pd.read_sql_query('SELECT index FROM artworks ' +
+                                'WHERE cluster={:d}'.format(i), con)
+        # Store index vals for this cluster as a 1-d numpy array
+        index_vals = np.squeeze(np.array(qry.values))
+        np.random.shuffle(index_vals)  # shuffles in place
+        index_vals = list(index_vals[:2]) # and get two values
+        # Get index values from many dataframe
+        rand_inds = rand_inds + index_vals
+    # Shuffle the random inds so that cluster 0 doesn't always appear first
+    np.random.shuffle(rand_inds)
+    return rand_inds
 
 def append_random_imgs(rand_inds, do_db, con, df):
     img = []
