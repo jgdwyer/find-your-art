@@ -115,8 +115,9 @@ def get_similar_art(good_inds, bad_inds, df, df_pre2):
     user_vec = get_user_vector(good_inds, bad_inds, df_features)
     # Computer pairwise distance and convert to a N_samples x 1 vector
     # distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='euclidean')
+    # The none is there b/c scikit learn wants to represent that there is one sample
     distance = sklearn.metrics.pairwise.euclidean_distances(df_features, user_vec,
-                                                            X_norm_squared=df_pre2)
+                                                            X_norm_squared=df_pre2[:,None])
     distance = np.squeeze(distance)
     #Get user top categories
     top_features = top_user_features(df_features, user_vec)
