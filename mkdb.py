@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 import pandas as pd
 import psycopg2
 import getpass
+import clusters
 
 def store_db(df):
     """ From command line in proper environment, first run:
@@ -37,6 +38,9 @@ def separate_db_and_pd():
     if df_file == 'art_yr_label_cln2_cats_labs_sparse_cln.pickle':
         df_dense.drop('level_0', axis=1, inplace=True)
         df_dense.drop('index', axis=1, inplace=True)
+    # Apply cluster analysis to get a label for each artwork
+    df_dense = clusters.do_cluster(df_dense, df_sparse, load_file=True)
+    print(df_dense.columns)
     # Store dense dataframe w/o features in database
     store_db(df_dense)
     df_dense.to_pickle('./dfs/art_yr_label_cln2_cats_labs_sparse_cln_nofeats.pickle')
