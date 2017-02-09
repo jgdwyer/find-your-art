@@ -2,16 +2,16 @@
 {% block content %}
 <h1>Click on art you like</h1>
 <form action="/results" method="POST", id="form">
-    <select name="q" id="selectImage" multiple="multiple" class="image-picker">
-      {% for item in img %}
-          <option data-img-src="{{item}}" value="{{loop.index0}}"></option>
-      {% endfor %}
-    </select>
-    <script>
-      jQuery("select.image-picker").imagepicker({
-      hide_select:  true,
-      });
-    </script>
-    <p><input type="submit" value="submit" class="btn btn-lg btn-primary"></p>
-  </form>
+  <select name="q" id="selectImage" multiple="multiple" class="image-picker">
+    {% for item in img %}
+        <option data-img-src="{{item}}" value="{{loop.index0}}"></option>
+    {% endfor %}
+  </select>
+  <script>
+    jQuery("select.image-picker").imagepicker({
+    hide_select:  true,
+    });
+  </script>
+  <p><input type="submit" value="submit" class="btn btn-lg btn-primary"></p>
+</form>
 {% endblock %}
