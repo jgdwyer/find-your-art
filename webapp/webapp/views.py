@@ -132,8 +132,11 @@ def pagea():
 
 @app.route('/about')
 def about():
-   # Send to template page
    return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+  return render_template('contact.html')
 
 def two_inds_per_cluster(con):
     """Returns 36 index values with two values from each of the 18 clusters"""
