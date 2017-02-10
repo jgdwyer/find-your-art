@@ -1,5 +1,5 @@
 from flask import render_template
-from flask import request, session
+from flask import request, session, redirect
 from webapp import app
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
@@ -10,6 +10,7 @@ import numpy as np
 from webapp.settings import APP_STATIC
 import os
 import getpass
+import datetime
 
 do_db = True
 # The number of images to show
@@ -41,7 +42,6 @@ df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
 df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly_distance2.pickle'))
-
 
 
 @app.route('/')
@@ -107,6 +107,8 @@ def pagea():
     best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df_feat, df_pre2)
     # best_inds = imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False)
     print(best_inds)
+    USERDB = create_user_df(rand_inds, good_inds, bad_inds, best_inds)
+    write_user_db(USERDF)
     # ------------ Run Model -  ------------ #
     # Get thumbnail address for best images
     sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
@@ -143,8 +145,29 @@ def contact():
 
 @app.route('/unhappy')
 def unhappy():
-    session['unhappy']+=1
+    write_user_db(USERDF, unhappy=1)
     return render_template('unhappy.html')
+
+def create_user_df(rand_inds, good_inds, bad_inds, best_inds):
+    time = datetime.datetime.now()
+    userdict = {'randinds': ','.join([str(foo) for foo in rand_inds]),
+              'good_inds': ','.join([str(foo) for foo in good_inds]),
+              'bad_inds': ','.join([str(foo) for foo in bad_inds]),
+              'best_inds': ','.join([str(foo) for foo in best_inds]),
+              'unhappy': 0,
+              'time': time}
+    global USERDF
+    USERDF = pd.DataFrame(data=userdict, index=range(1))
+    return USERDF
+
+def write_user_db(USERDF, unhappy=0):
+    USERDF['unhappy'].iloc[[0]] = unhappy
+    db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.format(user, pswd,
+                                                            host, 'artuser'))
+    engine_user = create_engine('postgresql://' + user + ':1234@localhost/artuser')
+    con = None
+    con = psycopg2.connect(database='artuser', user=user, host=host, password=pswd)
+    USERDF.to_sql('artuser', engine_user, if_exists='append')
 
 def two_inds_per_cluster(con):
     """Returns 36 index values with two values from each of the 18 clusters"""
