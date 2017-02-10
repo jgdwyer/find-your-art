@@ -42,6 +42,8 @@ df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
 df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly_distance2.pickle'))
 
+
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -54,6 +56,7 @@ def index():
     # Store each random image index as a value in the sessions dictionary
     # Note that indices are stored as strings
     img, session = append_random_imgs(rand_inds, do_db, con, df)
+    session['unhappy']=0
     # Send to template page
     return render_template('index.html', img=img)
 
@@ -137,6 +140,11 @@ def about():
 @app.route('/contact')
 def contact():
   return render_template('contact.html')
+
+@app.route('/unhappy')
+def unhappy():
+    session['unhappy']+=1
+    return render_template('unhappy.html')
 
 def two_inds_per_cluster(con):
     """Returns 36 index values with two values from each of the 18 clusters"""
