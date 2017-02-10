@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 app = Flask(__name__)
-app.secret_key = '0.1590535asf100407506A'
+app.secret_key = os.urandom(24)
 from webapp import views
