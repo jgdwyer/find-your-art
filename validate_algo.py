@@ -16,7 +16,7 @@ def validate_on_artist(verbose=False):
     df_cols = df[collabels]
     artists = df['artist_name'].unique()
     # Loop over dataframe and calculate error from year
-    score = np.empty((8, len(artists)))
+    score = np.empty((4, len(artists)))
     score[:] = np.nan
     for i, artist in enumerate(artists):
         if sum(df['artist_name']==artist) >= 7:
@@ -39,22 +39,18 @@ def _validate_on_artist(df, df_cols, artist, verbose=False):
     inner_inds = random.sample(range(len(df_artist)), 2)
     # Get the index value in the big dataframe of these df_yr dataframe entries
     good_inds = df_artist.iloc[inner_inds].index.tolist()
-    # Append 6 other random entries to list
-    good_inds = good_inds + random.sample(range(len(df)), 4)
-    # Pick 16 entries with a random year (bad inds)
-    bad_inds = random.sample(range(len(df)), 16)
+    # Append 3 other random entries to list
+    good_inds = good_inds + random.sample(range(len(df)), 3)
+    # Pick 31 entries with a random year (bad inds)
+    bad_inds = random.sample(range(len(df)), 31)
     # Initialize score
-    score = np.empty(8)
+    score = np.empty(4)
     score[:] = np.nan
     # Evaluate different models
     score[0] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 0.1)
-    score[1] = np.nan #m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 0)
-    score[2] = np.nan #m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cosine', 1)
-    score[3] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cityblock', 0.1)
-    score[4] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'euclidean', 0.1)
-    score[5] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'l1', 0.1)
-    score[6] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'l2', 0.1)
-    score[7] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'random', None)
+    score[1] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'cityblock', 0.1)
+    score[2] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'euclidean', 0.1)
+    score[3] = m.m_metric(artist, good_inds, bad_inds, df, df_cols, 'random', None)
 
     return score
 
