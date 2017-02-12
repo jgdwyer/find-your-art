@@ -1,5 +1,5 @@
 from flask import render_template
-from flask import request, session, redirect
+from flask import request, session, redirect, flash
 from webapp import app
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
@@ -48,8 +48,9 @@ def index():
     # Note that indices are stored as strings
     img, session = append_random_imgs(rand_inds, con, df)
     session['unhappy']=0
+    error = None
     # Send to template page
-    return render_template('index.html', img=img)
+    return render_template('index.html', img=img, error=error)
 
 
 @app.route('/demo_seed')
@@ -69,6 +70,7 @@ def pagea():
     bad_inds = []
     for i in range(N):
         rand_inds[i] = int(session.get('rnd_ind' + str(i), None))
+    error = None
     # Need to use the getlist subroutine b/c form is returning multiple values
     qlist = request.form.getlist('q')
     # Convert list entries to ints
@@ -81,7 +83,13 @@ def pagea():
         else:
             # No - user did not select
             bad_inds.append(rand_inds[i])
-
+    if (len(good_inds) == 0 or len(good_inds) == len(rand_inds)):
+        if len(good_inds) == 0:
+            error = 'Please choose at least one artwork'
+        if len(good_inds) == len(rand_inds):
+            error = "Please don't choose all of the artworks"
+        img, _ = append_random_imgs(rand_inds, con, df)
+        return render_template('index.html', img=img, error=error)
     # ------------ Run Model -  ------------ #
     best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df_feat, df_pre2)
     # Write output to database
