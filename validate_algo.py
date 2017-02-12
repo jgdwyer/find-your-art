@@ -58,13 +58,14 @@ def plot_validation():
     #Can load score.npy file and do np.nansum(score,axis=1)
     # But just define directly
     fo=20
-    z = np.array([ 53.,  54.,  66.,  2.]) / 330. * 100.
+    z = np.array([ 86.375,  70.875,  88.625,   2.   ]) / 330. * 100.  # mean
+    zstderr = np.array([ 5.89358762,  3.82222121,  5.29002599,  1. ]) / 330 *100 /np.sqrt(8)  # std/sqrt(N)
     labs = ['None\n(baseline)', 'Euclidean', 'Manhattan', 'Cosine']
     with plt.style.context('seaborn'):
         plt.figure(figsize=(6,6))
-        plt.barh(range(len(z)), z[::-1], tick_label=labs) #, edgecolor='k', color='w')
-        plt.gca().set_xticks([0, 5, 10, 15, 20])
-        plt.gca().set_xticklabels(['0%','5%', '10%', '15%', '20%'])
+        plt.barh(range(len(z)), z[::-1], tick_label=labs, xerr=zstderr[::-1]) #, edgecolor='k', color='w')
+        plt.gca().set_xticks([0, 10, 20, 30])
+        plt.gca().set_xticklabels(['0%', '10%', '20%', '30%'])
         plt.tick_params(axis='both', which='major', labelsize=fo)
         # plt.title('Validation on Artists', fontsize=fo)
         plt.xlabel('Probability of recommending\n the same artist', fontsize=fo)
