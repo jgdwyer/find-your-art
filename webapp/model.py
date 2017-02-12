@@ -21,10 +21,10 @@ def get_similar_art(good_inds, bad_inds, df_features, df_pre2):
     # Calculate user profile
     user_vec = get_user_vector(good_inds, bad_inds, df_features)
     # Computer pairwise distance and convert to a N_samples x 1 vector
-    # distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='euclidean')
     # The none is there b/c scikit learn wants to represent that there is one sample
-    distance = sklearn.metrics.pairwise.euclidean_distances(df_features, user_vec,
-                                                            X_norm_squared=df_pre2[:,None])
+    distance = sklearn.metrics.pairwise.euclidean_distances(\
+        df_features, user_vec, X_norm_squared=df_pre2[:, None])
+    # Convert from an N_samples x 1 to a 1-d N_samples array
     distance = np.squeeze(distance)
     #Get user top categories
     top_features = top_user_features(df_features, user_vec)
@@ -37,6 +37,68 @@ def get_similar_art(good_inds, bad_inds, df_features, df_pre2):
     most_similar_distance_features_to_user(df_features, best_inds, user_vec)
     return best_inds, top_features
 
+
+def get_user_vector(good_inds, bad_inds, df_features):
+    """Calculate user profile by summing over each user-chosen images
+       returns 1xN_features vector"""
+    # Get an N_features vector by summing over all images the user liked
+    good_vec = df_features.iloc[good_inds].sum()
+    # And sum over images the user did not like
+    bad_vec = df_features.iloc[bad_inds].sum()
+    # Simple difference seems to work quite well
+    user_vec = good_vec - 0.1*bad_vec
+    # Change this to a 1xN_features vector for distance calculations
+    user_vec = user_vec[:,None].T
+    return user_vec
+
+
+def top_user_features(df_features, user_vec, debug=True):
+    """Given a user vector, calculate the features that the user liked most
+      inputs:
+        --df_features -- features only pandas dataframe
+        --user_vec -- 1-d array of N_art of how much the user liked each
+        --debug -- boolean of whether to print top 30 thing user liked/disliked
+      returns:
+        -- list of features (strings) that the user liked most"""
+    # Force user vector as an N_art x 1 array
+    user_vec = np.squeeze(user_vec.T)
+    best_feature_scr = np.sort(user_vec)[::-1][:30]
+    best_feature_ind = np.argsort(user_vec)[::-1][:30]
+    if debug:
+        # Print favorite features
+        print('User likes-----')
+        for ind, scr in zip(best_feature_ind, best_feature_scr):
+            print(df_features.columns[ind] + '...{:.2f}'.format(scr))
+        # Calculate least favorite features
+        worst_feature_scr = np.sort(user_vec)[:30]
+        worst_feature_ind = np.argsort(user_vec)[:30]
+        # Print least favorite features
+        print('User does not like-----')
+        for ind, scr in zip(worst_feature_ind, worst_feature_scr):
+            print(df_features.columns[ind] + '...{:.2f}'.format(scr))
+    # Get a lits of top features to return to the webapp
+    top_features = []
+    # These features are helpful for the algorithm, but not helpful for the user
+    uninformative_features = ['labbin:art', 'labbin:painting', 'labbin:drawing',
+                              'labbin:illustration', 'labbin:sketch',
+                              'labbin:picture frame']
+    # Loop over top 30 features
+    for ind, scr in zip(best_feature_ind, best_feature_scr):
+        feature = df_features.columns[ind]
+        if feature not in uninformative_features and scr > 1:
+            # Remove the labbin: or catbin: part of the string
+            top_features.append(feature[7:])
+    # Get more features if we only less than three
+    if len(top_features)<3:
+        top_features = []
+        for ind, scr in zip(best_feature_ind, best_feature_scr):
+            feature = df_features.columns[ind]
+            # But now say that the score just has to be greater than 0
+            if feature not in uninformative_features and scr > 0:
+                top_features.append(feature[7:])
+        # Limit to five features chosen this way
+        top_features = top_features[:5]
+    return top_features
 
 
 def m_metric(artist, good_inds, bad_inds, df, df_cols, metric, bad_weight):
@@ -73,50 +135,9 @@ def remove_init_results(distance, good_inds, bad_inds):
     distance[bad_inds] = np.nan
     return distance
 
-def get_user_vector(good_inds, bad_inds, df_features):
-    """Calculate user profile by summing over each user-chosen images
-       returns 1xN_features vector"""
-    # Get an N_features vector by summing over all images the user liked
-    good_vec = df_features.iloc[good_inds].sum()
-    # And sum over images the user did not like
-    bad_vec = df_features.iloc[bad_inds].sum()
-    # Simple difference seems to work quite well
-    user_vec = good_vec - 0.1*bad_vec
-    # Change this to a 1xN_features vector for distance calculations
-    user_vec = user_vec[:,None].T
-    return user_vec
 
-def top_user_features(df_features, user_vec):
-    """Given a user vector, calculate the features that the user liked"""
-    user_vec = np.squeeze(user_vec.T)
-    best_feature_scr = np.sort(user_vec)[::-1][:30]
-    best_feature_ind = np.argsort(user_vec)[::-1][:30]
-    worst_feature_scr = np.sort(user_vec)[:30]
-    worst_feature_ind = np.argsort(user_vec)[:30]
-    print('User likes-----')
-    for ind, scr in zip(best_feature_ind, best_feature_scr):
-        print(df_features.columns[ind] + '...{:.2f}'.format(scr))
-    print('User does not like-----')
-    for ind, scr in zip(worst_feature_ind, worst_feature_scr):
-        print(df_features.columns[ind] + '...{:.2f}'.format(scr))
-    # Get a lits of top features to return to the webapp
-    top_features = []
-    uninformative_features = ['labbin:art', 'labbin:painting', 'labbin:drawing',
-                              'labbin:illustration', 'labbin:sketch',
-                              'labbin:picture frame']
-    for ind, scr in zip(best_feature_ind, best_feature_scr):
-        feature = df_features.columns[ind]
-        if feature not in uninformative_features and scr > 1:
-            top_features.append(feature[7:])
-    top_features = set(top_features)
-    if len(top_features)<3:
-        top_features = []
-        for ind, scr in zip(best_feature_ind, best_feature_scr):
-            feature = df_features.columns[ind]
-            if feature not in uninformative_features and scr > 0:
-                top_features.append(feature[7:])
-        top_features = top_features[:5]
-    return top_features
+
+
 
 def most_similar_distance_features_to_user(df_features, best_inds, user_vec):
     user_mat = np.diag(np.squeeze(user_vec.T))
