@@ -5,6 +5,40 @@ import sklearn.metrics
 import time
 import random
 
+
+def get_similar_art(good_inds, bad_inds, df_features, df_pre2):
+    """Given index of images a user likes and does not like, return the most
+    similar!
+      inputs:
+       --good_inds - list of indices of artwork the user selected
+       --bad_inds - list of indices of artwork the user did not select
+       --df_features - pandas dataframe of features alone
+       --df_pre2 -- pandas series of squared category values
+      returns:
+       --best_inds - list of 4 indices of most similar artwork
+       --top_features - list of features that the user most liked"""
+
+    # Calculate user profile
+    user_vec = get_user_vector(good_inds, bad_inds, df_features)
+    # Computer pairwise distance and convert to a N_samples x 1 vector
+    # distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='euclidean')
+    # The none is there b/c scikit learn wants to represent that there is one sample
+    distance = sklearn.metrics.pairwise.euclidean_distances(df_features, user_vec,
+                                                            X_norm_squared=df_pre2[:,None])
+    distance = np.squeeze(distance)
+    #Get user top categories
+    top_features = top_user_features(df_features, user_vec)
+    # Remove any indices that we initially showed the user
+    distance = remove_init_results(distance, good_inds, bad_inds)
+    # Sort ascending to get top four results
+    best_vals = np.sort(distance)[:4]
+    best_inds = np.argsort(distance)[:4]
+    #Measure similarity to each category
+    most_similar_distance_features_to_user(df_features, best_inds, user_vec)
+    return best_inds, top_features
+
+
+
 def m_metric(artist, good_inds, bad_inds, df, df_cols, metric, bad_weight):
     """metric: 'cosine', 'cityblock', euclidean', 'l1', l2'
        bad_weight: 0, 0.1, 1
@@ -96,39 +130,6 @@ def most_similar_distance_features_to_user(df_features, best_inds, user_vec):
     cat_inds = np.argsort(distance)[:20]
     print(cat_vals)
     print(df_features.columns[cat_inds])
-
-def feature_only_df(df):
-    """Return a dataframe that only includes the features"""
-    # Get column labels of features
-    collabels = [col for col in list(df) if (col.startswith('catbin:') or \
-                                             col.startswith('labbin:'))]
-    # Get feature-only dataframe
-    df_features = df[collabels]
-    return df_features
-
-def get_similar_art(good_inds, bad_inds, df, df_pre2):
-    """Given images a user likes and does not like, return the most similar!
-       """
-    # Get a dataframe where the only columns are features
-    df_features = feature_only_df(df)
-    # Calculate user profile
-    user_vec = get_user_vector(good_inds, bad_inds, df_features)
-    # Computer pairwise distance and convert to a N_samples x 1 vector
-    # distance = sklearn.metrics.pairwise_distances(df_features, user_vec, metric='euclidean')
-    # The none is there b/c scikit learn wants to represent that there is one sample
-    distance = sklearn.metrics.pairwise.euclidean_distances(df_features, user_vec,
-                                                            X_norm_squared=df_pre2[:,None])
-    distance = np.squeeze(distance)
-    #Get user top categories
-    top_features = top_user_features(df_features, user_vec)
-    # Remove any indices that we initially showed the user
-    distance = remove_init_results(distance, good_inds, bad_inds)
-    # Sort ascending to get top four results
-    best_vals = np.sort(distance)[:4]
-    best_inds = np.argsort(distance)[:4]
-    #Measure similarity to each category
-    most_similar_distance_features_to_user(df_features, best_inds, user_vec)
-    return best_inds, top_features
 
 
 def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False):
