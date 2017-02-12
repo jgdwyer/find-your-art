@@ -1,5 +1,4 @@
-from flask import render_template
-from flask import request, session, redirect, flash
+from flask import render_template, request, session, redirect, flash
 from webapp import app
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
@@ -41,6 +40,7 @@ df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
 @app.route('/')
 @app.route('/index')
 def index():
+    """The main page - get images from k-means and show them to user"""
     # Get random initial values from k-means clusters
     rand_inds = two_inds_per_cluster(con)
     print(rand_inds)
@@ -55,6 +55,7 @@ def index():
 
 @app.route('/demo_seed')
 def demo_seed():
+    """Like index page, but with predefined images for presenting as demo"""
     inds = [6352, 5121, 7332, 11110, 10679, 9802, 3105, 8820, 117, 12730, 6014, 1643, 433,
             4040, 5050, 2121, 7570, 12389, 3205, 7142, 898, 3190, 395, 9023,
              12162, 2502, 1350, 2276, 10198, 14156, 493, 13936, 6992, 774, 7422, 4412]
@@ -63,7 +64,8 @@ def demo_seed():
 
 
 @app.route('/results', methods=['POST'])
-def pagea():
+def results():
+    """Takes in user choices, calculates user profile and returns similar art"""
     # Collect decisions from previous page
     rand_inds = N*[None]
     good_inds = []
@@ -115,14 +117,17 @@ def pagea():
 
 @app.route('/about')
 def about():
-   return render_template('about.html')
+    """Returns about page with slides"""
+    return render_template('about.html')
 
 @app.route('/contact')
 def contact():
-  return render_template('contact.html')
+    """Returns page with my contact info"""
+    return render_template('contact.html')
 
 @app.route('/unhappy')
 def unhappy():
+    """Tells user that their unhappiness with results has been recorded in db"""
     # Record that user is unhappy in the database
     write_user_db(USERDF, unhappy=1)
     return render_template('unhappy.html')
@@ -176,7 +181,6 @@ def append_random_imgs(rand_inds, con, df):
         thumb_url_np = pd.read_sql_query(sql_query, con)
         # Convert from pandas -> numpy -> string value
         img.append(thumb_url_np.values[0][0])
-
     return img, session
 
 def link_to_art_dot_com(alink):
