@@ -108,9 +108,13 @@ def remove_init_results(distance, good_inds, bad_inds):
 
 
 def m_metric(artist, good_inds, bad_inds, df, df_cols, metric, bad_weight):
-    """metric: 'cosine', 'cityblock', euclidean', 'l1', l2'
-       bad_weight: 0, 0.1, 1
-       returns 1 if matches original artist and 0 if not"""
+    """Script to do validation using different distance measures
+       See validate_algo functions
+         inputs:
+          --metric: 'cosine', 'cityblock', euclidean'
+          --bad_weight: 0, 0.1, 1
+         returns:
+          --1 if matches original artist and 0 if not"""
     if metric=='random':
         best_inds = random.sample(range(len(df)), 4)
     else:
