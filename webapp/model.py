@@ -28,13 +28,11 @@ def get_similar_art(good_inds, bad_inds, df_features, df_pre2):
     distance = np.squeeze(distance)
     #Get user top categories
     top_features = top_user_features(df_features, user_vec)
-    # Remove any indices that we initially showed the user
+    # Remove any indices that we initially showed the user - no dupliates!
     distance = remove_init_results(distance, good_inds, bad_inds)
-    # Sort ascending to get top four results
+    # Sort in ascending order and get top four results
     best_vals = np.sort(distance)[:4]
     best_inds = np.argsort(distance)[:4]
-    #Measure similarity to each category
-    most_similar_distance_features_to_user(df_features, best_inds, user_vec)
     return best_inds, top_features
 
 
@@ -101,6 +99,14 @@ def top_user_features(df_features, user_vec, debug=True):
     return top_features
 
 
+def remove_init_results(distance, good_inds, bad_inds):
+    """Since we don't want to return the results we showed initially,
+       set them to nan"""
+    distance[good_inds] = np.nan
+    distance[bad_inds] = np.nan
+    return distance
+
+
 def m_metric(artist, good_inds, bad_inds, df, df_cols, metric, bad_weight):
     """metric: 'cosine', 'cityblock', euclidean', 'l1', l2'
        bad_weight: 0, 0.1, 1
@@ -128,29 +134,7 @@ def m_metric(artist, good_inds, bad_inds, df, df_cols, metric, bad_weight):
             score = 1
     return score
 
-def remove_init_results(distance, good_inds, bad_inds):
-    """Since we don't want to return the results we showed initially,
-       set them to nan"""
-    distance[good_inds] = np.nan
-    distance[bad_inds] = np.nan
-    return distance
 
-
-
-
-
-def most_similar_distance_features_to_user(df_features, best_inds, user_vec):
-    user_mat = np.diag(np.squeeze(user_vec.T))
-    distance = np.zeros(len(df_features.columns))
-    for b in best_inds:
-        distance1 = sklearn.metrics.pairwise_distances(user_mat,
-                                                      df_features.iloc[[b]],
-                                                      metric='euclidean')
-        distance += np.squeeze(distance1)
-    cat_vals = np.sort(distance)[:20]
-    cat_inds = np.argsort(distance)[:20]
-    print(cat_vals)
-    print(df_features.columns[cat_inds])
 
 
 def imgs_from_cats(good_inds, bad_inds, df, db, con, do_db, verbose=False):
