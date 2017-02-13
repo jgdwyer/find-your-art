@@ -3,7 +3,7 @@ import os
 import os.path
 # Imports the Google Cloud client library
 from google.cloud import vision
-import cats
+from scripts import cats
 import matplotlib.pyplot as plt
 import numpy as np
 

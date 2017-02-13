@@ -1,10 +1,10 @@
 import pickle
-import cln
+from scripts import cln
 from sqlalchemy import create_engine
 import pandas as pd
 import psycopg2
 import getpass
-import clusters
+from scripts import clusters
 
 def store_db(df):
     """ From command line in proper environment, first run:
