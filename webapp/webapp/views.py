@@ -13,26 +13,28 @@ import datetime
 
 # The number of images to show
 N = 36
-
-db = None
-con = None
-df = None
-
-# Establish a connection with the PSQL database
+# Initialize variables for connecting to database
 user = getpass.getuser()
 pswd = '1234'
 host = 'localhost'
 dbname = 'art_3'
+db = None
+con = None
+# Establish a connection with the PSQL database
 db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.format(user, pswd,
                                                           host, dbname))
-con = None
+# Connect to database
 con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
-
-qry = pd.read_sql_query('SELECT count(*) AS exact_count FROM artworks', con)
-N_rows = qry.values[0][0]
-
+# Define the number of rows in database
+N_rows = 14852
+if N_rows = None
+    # If number of rows is not known a priori, calculate from database
+    qry = pd.read_sql_query('SELECT count(*) AS exact_count FROM artworks', con)
+    N_rows = qry.values[0][0]
+# Load the features-only pandas data frame of
 df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
+# Load the pandas dataframe with precomputed distance^2 term
 df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly_distance2.pickle'))
 
@@ -97,7 +99,6 @@ def results():
     # Write output to database
     USERDB = create_user_df(rand_inds, good_inds, bad_inds, best_inds)
     write_user_db(USERDF)
-    # ------------ Run Model -  ------------ #
     # Get thumbnail address for best images
     sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
         "FROM artworks WHERE index="
