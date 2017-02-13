@@ -21,17 +21,17 @@ dbname = 'art_3'
 db = None
 con = None
 # Establish a connection with the PSQL database
-db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.format(user, pswd,
-                                                          host, dbname))
+db = create_engine('postgres://{:s}:{:s}@{:s}/{:s}'.\
+    format(user, pswd, host, dbname))
 # Connect to database
 con = psycopg2.connect(database=dbname, user=user, host=host, password=pswd)
 # Define the number of rows in database
 N_rows = 14852
-if N_rows = None
+if N_rows == None:
     # If number of rows is not known a priori, calculate from database
     qry = pd.read_sql_query('SELECT count(*) AS exact_count FROM artworks', con)
     N_rows = qry.values[0][0]
-# Load the features-only pandas data frame of
+# Load the features-only pandas data frame in static folder
 df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
 # Load the pandas dataframe with precomputed distance^2 term
@@ -44,24 +44,23 @@ df_feat_sqd = pd.read_pickle(os.path.join(APP_STATIC, \
 def index():
     """The main page - get images from k-means and show them to user"""
     # Get random initial values from k-means clusters
-    rand_inds = two_inds_per_cluster(con)
-    print(rand_inds)
+    rand_inds = model.two_inds_per_cluster(con)
+    # Get a list of url strings (img) and store the index in the session var
     # Store each random image index as a value in the sessions dictionary
     # Note that indices are stored as strings
-    img, session = append_random_imgs(rand_inds, con, df)
-    session['unhappy']=0
-    error = None
+    img, session = append_random_imgs(rand_inds, con)
     # Send to template page
-    return render_template('index.html', img=img, error=error)
+    return render_template('index.html', img=img, error=None)
 
 
 @app.route('/demo_seed')
 def demo_seed():
     """Like index page, but with predefined images for presenting as demo"""
-    inds = [6352, 5121, 7332, 11110, 10679, 9802, 3105, 8820, 117, 12730, 6014, 1643, 433,
-            4040, 5050, 2121, 7570, 12389, 3205, 7142, 898, 3190, 395, 9023,
-             12162, 2502, 1350, 2276, 10198, 14156, 493, 13936, 6992, 774, 7422, 4412]
-    img, session = append_random_imgs(inds, con, df)
+    inds = [6352, 5121, 7332, 11110, 10679, 9802, 3105, 8820, 117, 12730, 6014,
+            1643, 433, 4040, 5050, 2121, 7570, 12389, 3205, 7142, 898, 3190,
+            395, 9023, 12162, 2502, 1350, 2276, 10198, 14156, 493, 13936, 6992,
+            774, 7422, 4412]
+    img, session = append_random_imgs(inds, con)
     return render_template('index.html', img=img)
 
 
@@ -92,7 +91,7 @@ def results():
             error = 'Please choose at least one artwork'
         if len(good_inds) == len(rand_inds):
             error = "Please don't choose all of the artworks"
-        img, _ = append_random_imgs(rand_inds, con, df)
+        img, _ = append_random_imgs(rand_inds, con)
         return render_template('index.html', img=img, error=error)
     # ------------ Run Model -  ------------ #
     best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df_feat, df_feat_sqd)
@@ -154,35 +153,22 @@ def write_user_db(USERDF, unhappy=0):
     con = psycopg2.connect(database='artuser', user=user, host=host, password=pswd)
     USERDF.to_sql('artuser', engine_user, if_exists='append')
 
-def two_inds_per_cluster(con):
-    """Returns 36 index values with two values from each of the 18 clusters"""
-    rand_inds = []
-    # Loop over clusters
-    for i in range(18):
-        qry = pd.read_sql_query('SELECT index FROM artworks ' +
-                                'WHERE cluster={:d}'.format(i), con)
-        # Store index vals for this cluster as a 1-d numpy array
-        index_vals = np.squeeze(np.array(qry.values))
-        np.random.shuffle(index_vals)  # shuffles in place
-        index_vals = list(index_vals[:2]) # and get two values
-        # Get index values from many dataframe
-        rand_inds = rand_inds + index_vals
-    # Shuffle the random inds so that cluster 0 doesn't always appear first
-    np.random.shuffle(rand_inds)
-    return rand_inds
 
-def append_random_imgs(rand_inds, con, df):
+def append_random_imgs(rand_inds, con):
+    """Given a list of index values and a database connection, return a list of
+       url strings to the images and the updated session variable"""
     img = []
     sql_query_pre = "SELECT url_to_thumb FROM artworks WHERE index="
     for i, rand_ind in enumerate(rand_inds):
+        # Set the session index value (could also use a GLOBAL variable here)
         session['rnd_ind' + str(i)] = str(rand_ind)
-        # Get urls of thumbnail images
+        # Call database to get urls of thumbnail images from index value
         sql_query = sql_query_pre + str(rand_ind) + ";"
-        # Read from database
         thumb_url_np = pd.read_sql_query(sql_query, con)
-        # Convert from pandas -> numpy -> string value
+        # Add url string to list
         img.append(thumb_url_np.values[0][0])
     return img, session
+
 
 def link_to_art_dot_com(alink):
     alink = alink.replace(' - Google Art Project.jpg',"")

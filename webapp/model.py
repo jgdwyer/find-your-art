@@ -5,6 +5,39 @@ import sklearn.metrics
 import time
 import random
 
+def two_inds_per_cluster(con):
+    """The initial quasi-random images presented to user-select
+    Returns 36 index values with two values from each of the 18 clusters"""
+    rand_inds = []
+    # Loop over clusters
+    for i in range(18):
+        qry = pd.read_sql_query('SELECT index FROM artworks ' +
+                                'WHERE cluster={:d}'.format(i), con)
+        # Store index vals for this cluster as a 1-d numpy array
+        index_vals = np.squeeze(np.array(qry.values))
+        np.random.shuffle(index_vals)  # shuffles in place
+        index_vals = list(index_vals[:2]) # and get two values
+        # Get index values from many dataframe
+        rand_inds = rand_inds + index_vals
+    # Shuffle the random inds so that cluster 0 doesn't always appear first
+    np.random.shuffle(rand_inds)
+    return rand_inds
+
+def append_random_imgs(rand_inds, con, session):
+    """Given a list of index values and a database connection, return a list of
+       url strings to the images and the updated session variable"""
+    img = []
+    sql_query_pre = "SELECT url_to_thumb FROM artworks WHERE index="
+    for i, rand_ind in enumerate(rand_inds):
+        # Set the session index value (could also use a GLOBAL variable here)
+        session['rnd_ind' + str(i)] = str(rand_ind)
+        # Call database to get urls of thumbnail images from index value
+        sql_query = sql_query_pre + str(rand_ind) + ";"
+        thumb_url_np = pd.read_sql_query(sql_query, con)
+        # Add url string to list
+        img.append(thumb_url_np.values[0][0])
+    return img, session
+
 
 def get_similar_art(good_inds, bad_inds, df_features, df_feat_sqd):
     """Given index of images a user likes and does not like, return the most
@@ -17,7 +50,6 @@ def get_similar_art(good_inds, bad_inds, df_features, df_feat_sqd):
       returns:
        --best_inds - list of 4 indices of most similar artwork
        --top_features - list of features that the user most liked"""
-
     # Calculate user profile
     user_vec = get_user_vector(good_inds, bad_inds, df_features)
     # Computer pairwise distance and convert to a N_samples x 1 vector
