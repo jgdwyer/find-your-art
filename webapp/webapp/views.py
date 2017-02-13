@@ -67,18 +67,18 @@ def demo_seed():
 @app.route('/results', methods=['POST'])
 def results():
     """Takes in user choices, calculates user profile and returns similar art"""
-    # Collect decisions from previous page
+    # Initialize variables
     rand_inds = N*[None]
     good_inds = []
     bad_inds = []
+    # Get the initial choice from the sessions variable
     for i in range(N):
         rand_inds[i] = int(session.get('rnd_ind' + str(i), None))
-    error = None
-    # Need to use the getlist subroutine b/c form is returning multiple values
+    # Get the user's choices with  "getlist"  b/c form returns multiple values
     qlist = request.form.getlist('q')
-    # Convert list entries to ints
+    # Convert to list of ints (from list of strings)
     qlist = [int(q) for q in qlist]
-    # Loop over all sample images and check if user selected them
+    # Loop over all sample images and check which the user selected
     for i in range(N):
         if i in qlist:
             # Yes - user selected
@@ -86,6 +86,7 @@ def results():
         else:
             # No - user did not select
             bad_inds.append(rand_inds[i])
+    # Some checks on usage behavior - if fail, return to index.html with error
     if (len(good_inds) == 0 or len(good_inds) == len(rand_inds)):
         if len(good_inds) == 0:
             error = 'Please choose at least one artwork'
@@ -93,24 +94,13 @@ def results():
             error = "Please don't choose all of the artworks"
         img, _ = append_random_imgs(rand_inds, con)
         return render_template('index.html', img=img, error=error)
-    # ------------ Run Model -  ------------ #
+    # RUN THE MODEL! #
     best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df_feat, df_feat_sqd)
     # Write output to database
     USERDB = create_user_df(rand_inds, good_inds, bad_inds, best_inds)
     write_user_db(USERDF)
-    # Get thumbnail address for best images
-    sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
-        "FROM artworks WHERE index="
-    imgout, glink, alink, hreslink, artwork_name = [], [], [], [], []
-    for best_ind in best_inds:
-        sql_query = sql_query_pre + str(best_ind) + ";"
-        # Get results from database
-        results = pd.read_sql_query(sql_query, con)
-        imgout.append(results['url_to_thumb'].values[0])
-        glink.append('http://' + results['source_html'].values[0])
-        hreslink.append(results['url_to_im'].values[0])
-        alink.append(link_to_art_dot_com(results['filename_spaces'].values[0]))
-        artwork_name.append(results['filename_spaces'].values[0].replace(' - Google Art Project.jpg',""))
+    # Get urls for best results
+    imgout, glink, hreslink, alink, artwork_name = model.get_artwork_info(best_inds, con)
     return render_template("out.html", imgout=imgout, glink=glink, alink=alink,
                            hreslink=hreslink, artwork_name=artwork_name,
                            top_features=top_features)
@@ -168,11 +158,3 @@ def append_random_imgs(rand_inds, con):
         # Add url string to list
         img.append(thumb_url_np.values[0][0])
     return img, session
-
-
-def link_to_art_dot_com(alink):
-    alink = alink.replace(' - Google Art Project.jpg',"")
-    alink = alink.replace(" -","").replace(" ","%20")
-    apre = 'http://www.art.com/asp/search_do.asp/_/posters.htm?searchstring='
-    alink = apre + alink
-    return alink

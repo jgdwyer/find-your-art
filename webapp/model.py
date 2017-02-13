@@ -23,22 +23,6 @@ def two_inds_per_cluster(con):
     np.random.shuffle(rand_inds)
     return rand_inds
 
-def append_random_imgs(rand_inds, con, session):
-    """Given a list of index values and a database connection, return a list of
-       url strings to the images and the updated session variable"""
-    img = []
-    sql_query_pre = "SELECT url_to_thumb FROM artworks WHERE index="
-    for i, rand_ind in enumerate(rand_inds):
-        # Set the session index value (could also use a GLOBAL variable here)
-        session['rnd_ind' + str(i)] = str(rand_ind)
-        # Call database to get urls of thumbnail images from index value
-        sql_query = sql_query_pre + str(rand_ind) + ";"
-        thumb_url_np = pd.read_sql_query(sql_query, con)
-        # Add url string to list
-        img.append(thumb_url_np.values[0][0])
-    return img, session
-
-
 def get_similar_art(good_inds, bad_inds, df_features, df_feat_sqd):
     """Given index of images a user likes and does not like, return the most
     similar!
@@ -137,6 +121,32 @@ def remove_init_results(distance, good_inds, bad_inds):
     distance[good_inds] = np.nan
     distance[bad_inds] = np.nan
     return distance
+
+def get_artwork_info(best_inds, con):
+    """Given index values and a database connection, return the url of the
+       artwork and some other relevant urls, as well as the name"""
+    sql_query_pre = "SELECT url_to_thumb, url_to_im, source_html, filename_spaces " + \
+        "FROM artworks WHERE index="
+    imgout, glink, alink, hreslink, artwork_name = [], [], [], [], []
+    for best_ind in best_inds:
+        sql_query = sql_query_pre + str(best_ind) + ";"
+        # Get results from database
+        results = pd.read_sql_query(sql_query, con)
+        imgout.append(results['url_to_thumb'].values[0])
+        glink.append('http://' + results['source_html'].values[0])
+        hreslink.append(results['url_to_im'].values[0])
+        alink.append(link_to_art_dot_com(results['filename_spaces'].values[0]))
+        artwork_name.append(results['filename_spaces'].values[0].\
+            replace(' - Google Art Project.jpg',""))
+    return imgout, glink, hreslink, alink, artwork_name
+
+def link_to_art_dot_com(alink):
+    """Given the name of the artwork, return a link to art.com search query"""
+    alink = alink.replace(' - Google Art Project.jpg',"")
+    alink = alink.replace(" -","").replace(" ","%20")
+    apre = 'http://www.art.com/asp/search_do.asp/_/posters.htm?searchstring='
+    alink = apre + alink
+    return alink
 
 
 def m_metric(artist, good_inds, bad_inds, df, df_cols, metric, bad_weight):
