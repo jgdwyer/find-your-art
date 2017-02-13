@@ -35,7 +35,7 @@ if N_rows = None
 df_feat = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly.pickle'))
 # Load the pandas dataframe with precomputed distance^2 term
-df_pre2 = pd.read_pickle(os.path.join(APP_STATIC, \
+df_feat_sqd = pd.read_pickle(os.path.join(APP_STATIC, \
     'art_yr_label_cln2_cats_labs_sparse_cln_featuresonly_distance2.pickle'))
 
 
@@ -95,7 +95,7 @@ def results():
         img, _ = append_random_imgs(rand_inds, con, df)
         return render_template('index.html', img=img, error=error)
     # ------------ Run Model -  ------------ #
-    best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df_feat, df_pre2)
+    best_inds, top_features = model.get_similar_art(good_inds, bad_inds, df_feat, df_feat_sqd)
     # Write output to database
     USERDB = create_user_df(rand_inds, good_inds, bad_inds, best_inds)
     write_user_db(USERDF)

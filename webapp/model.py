@@ -6,14 +6,14 @@ import time
 import random
 
 
-def get_similar_art(good_inds, bad_inds, df_features, df_pre2):
+def get_similar_art(good_inds, bad_inds, df_features, df_feat_sqd):
     """Given index of images a user likes and does not like, return the most
     similar!
       inputs:
        --good_inds - list of indices of artwork the user selected
        --bad_inds - list of indices of artwork the user did not select
        --df_features - pandas dataframe of features alone
-       --df_pre2 -- pandas series of squared category values
+       --df_feat_sqd -- pandas series of squared category values
       returns:
        --best_inds - list of 4 indices of most similar artwork
        --top_features - list of features that the user most liked"""
@@ -23,7 +23,7 @@ def get_similar_art(good_inds, bad_inds, df_features, df_pre2):
     # Computer pairwise distance and convert to a N_samples x 1 vector
     # The none is there b/c scikit learn wants to represent that there is one sample
     distance = sklearn.metrics.pairwise.euclidean_distances(\
-        df_features, user_vec, X_norm_squared=df_pre2[:, None])
+        df_features, user_vec, X_norm_squared=df_feat_sqd[:, None])
     # Convert from an N_samples x 1 to a 1-d N_samples array
     distance = np.squeeze(distance)
     #Get user top categories
